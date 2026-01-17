@@ -1,6 +1,9 @@
 import { getLatestJobs } from "@/lib/data/jobs";
 import Link from "next/link";
 
+// Revalidate every 60 seconds (ISR)
+export const revalidate = 60;
+
 export default async function Home() {
   const latestJobs = await getLatestJobs();
 

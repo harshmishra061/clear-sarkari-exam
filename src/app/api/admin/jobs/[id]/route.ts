@@ -3,6 +3,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongoose";
 import LatestJob from "@/models/LatestJob";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export async function DELETE(
   req: Request,
@@ -23,6 +24,10 @@ export async function DELETE(
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
+
+    // Revalidate homepage and job page
+    revalidatePath("/");
+    revalidatePath(`/jobs/${job.slug}`);
 
     return NextResponse.json({ message: "Job deleted successfully" });
   } catch (error) {
@@ -82,6 +87,10 @@ export async function PUT(
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
+
+    // Revalidate homepage and job page
+    revalidatePath("/");
+    revalidatePath(`/jobs/${job.slug}`);
 
     return NextResponse.json(job);
   } catch (error) {

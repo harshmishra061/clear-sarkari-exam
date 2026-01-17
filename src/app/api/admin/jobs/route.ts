@@ -3,6 +3,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongoose";
 import LatestJob from "@/models/LatestJob";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export async function GET() {
   try {
@@ -46,7 +47,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const job = await LatestJob.create(body);
+    const job = await LatestJob.create(body);    
+    // Revalidate homepage to show new job
+    revalidatePath("/");
+    revalidatePath(`/jobs/${job.slug}`);
+    
     return NextResponse.json(job, { status: 201 });
   } catch (error) {
     return NextResponse.json(

@@ -1,6 +1,9 @@
 import { getJobBySlug } from "@/lib/data/jobs";
 import { notFound } from "next/navigation";
 
+// Revalidate every 60 seconds (ISR)
+export const revalidate = 60;
+
 interface JobPageProps {
   params: Promise<{
     slug: string;
