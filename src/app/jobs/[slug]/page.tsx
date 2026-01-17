@@ -1,5 +1,6 @@
 import { getJobBySlug } from "@/lib/data/jobs";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 // Revalidate every 60 seconds (ISR)
 export const revalidate = 60;
@@ -23,7 +24,9 @@ export default async function JobPage({ params }: JobPageProps) {
       {/* Header */}
       <header className="fixed top-0 left-0 text-white z-50" style={{ backgroundColor: '#BF1A1A', width: '100%', minWidth: '1024px' }}>
         <div className="py-6 px-4 text-center">
-          <h1 className="text-4xl font-bold">Clear Sarkari Exam</h1>
+          <Link href="/">
+            <h1 className="text-4xl font-bold cursor-pointer hover:opacity-90 transition-opacity">Clear Sarkari Exam</h1>
+          </Link>
         </div>
       </header>
 
