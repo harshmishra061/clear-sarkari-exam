@@ -33,12 +33,12 @@ export default async function JobPage({ params }: JobPageProps) {
             </div>
 
           {/* Main Content Box */}
-          <div className="border-2 border-black bg-white p-4">
+          <div className="border-2 border-black bg-white p-4 rounded-sm">
 
             {/* Two Column Layout */}
             <div className="grid grid-cols-2 gap-6">
               {/* Important Dates Column */}
-              <div className="border-2 border-black p-4">
+              <div className="border border-black p-4 rounded-sm">
                 <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Important Dates</h3>
                 {job.importantDates && job.importantDates.length > 0 ? (
                   <ul className="list-disc list-inside">
@@ -52,7 +52,7 @@ export default async function JobPage({ params }: JobPageProps) {
               </div>
 
               {/* Application Fee Column */}
-              <div className="border-2 border-black p-4">
+              <div className="border border-black p-4 rounded-sm">
                 <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Application Fee</h3>
                 {job.applicationFee && job.applicationFee.length > 0 ? (
                   <ul className="list-disc list-inside">
@@ -69,12 +69,13 @@ export default async function JobPage({ params }: JobPageProps) {
             <br />
 
             {/* Age Limit Section */}
-            {job.ageRange && (
-              <div className="border-2 border-black p-4">
+            {job.ageRange && job.ageRange.length > 0 && (
+              <div className="border border-black p-4 rounded-sm">
                 <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Age Limit</h3>
                 <ul className="list-disc list-inside">
-                  <li><span className="font-semibold">Minimum Age</span> : {job.ageRange.min} years</li>
-                  <li><span className="font-semibold">Maximum Age</span> : {job.ageRange.max} years</li>
+                  {job.ageRange.map((age, index) => (
+                    <li key={index}><span className="font-semibold">{age.title}</span> : {age.value}</li>
+                  ))}
                 </ul>
               </div>
             )}
@@ -84,7 +85,7 @@ export default async function JobPage({ params }: JobPageProps) {
 
             {/* Vacancies Section */}
             {job.vacancies && (
-              <div className="border-2 border-black p-4">
+              <div className="border border-black p-4 rounded-sm">
                 <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Total Vacancy : {job.vacancies.total}</h3>
                 {job.vacancies.distribution && job.vacancies.distribution.length > 0 && (
                   <ul className="mb-4 text-center bg-yellow-300">
@@ -99,19 +100,19 @@ export default async function JobPage({ params }: JobPageProps) {
                   </ul>
                 )}
                  {job.posts && job.posts.length > 0 && (
-                  <table className="w-full border-collapse border-2 border-black">
+                  <table className="w-full border-collapse border border-black rounded-sm">
                     <thead>
-                      <tr className="border-b-2 border-black">
-                        <th className="text-center p-2 font-semibold border-r-2 border-black" style={{ width: '30%' }}>Post Name</th>
-                        <th className="text-center p-2 font-semibold border-r-2 border-black" style={{ width: '20%' }}>Total Post</th>
+                      <tr className="border-b border-black">
+                        <th className="text-center p-2 font-semibold border-r border-black" style={{ width: '30%' }}>Post Name</th>
+                        <th className="text-center p-2 font-semibold border-r border-black" style={{ width: '20%' }}>Total Post</th>
                         <th className="text-center p-2 font-semibold" style={{ width: '50%' }}>Qualifications</th>
                       </tr>
                     </thead>
                     <tbody>
                       {job.posts.map((post, index) => (
                         <tr key={index} className="border-b border-black last:border-b-0">
-                          <td className="p-2 border-r-2 border-black text-center">{post.title}</td>
-                          <td className="p-2 border-r-2 border-black text-center">{post.count}</td>
+                          <td className="p-2 border-r border-black text-center">{post.title}</td>
+                          <td className="p-2 border-r border-black text-center">{post.count}</td>
                           <td className="p-2">
                             {post.qualification && post.qualification.length > 0 ? (
                               <ul className="list-disc list-inside">
@@ -136,17 +137,22 @@ export default async function JobPage({ params }: JobPageProps) {
 
             {/* Important Links Section */}
             {job.importantLinks && job.importantLinks.length > 0 && (
-              <div className="border-2 border-black p-4">
+              <div className="border border-black p-4 rounded-sm">
                 <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Important Links</h3>
-                <table className="w-full border-collapse border-2 border-black">
+                <table className="w-full border-collapse border border-black rounded-sm">
                   <tbody>
                     {job.importantLinks.map((link, index) => (
                       <tr key={index} className="border-b border-black last:border-b-0">
-                        <td className="p-2 border-r-2 border-black text-center text-2xl font-semibold" style={{ width: '50%', color: '#BF1A1A' }}>{link.label}</td>
+                        <td className="p-2 border-r border-black text-center text-2xl font-semibold" style={{ width: '50%', color: '#BF1A1A' }}>
+                          {link.label}
+                        </td>
                         <td className="p-2 text-center" style={{ width: '50%' }}>
                           <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-2xl font-semibold">
-                            Click Here
+                            {link.buttonText || "Click Here"}
                           </a>
+                          {link.otherInfo && (
+                            <div className="text-xl text-pink-400 font-bold mt-1">({link.otherInfo})</div>
+                          )}
                         </td>
                       </tr>
                     ))}

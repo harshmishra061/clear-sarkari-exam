@@ -15,7 +15,7 @@ export default async function Home() {
         <div className="container mx-auto px-10 py-8">
           <div className="grid grid-cols-3 gap-10">
             {/* Latest Jobs Section */}
-            <section className="border">
+            <section className="border rounded-sm">
               <h2 className="text-white text-xl font-bold py-4 px-6 text-center" style={{ backgroundColor: '#BF1A1A' }}>
                 LATEST JOBS
               </h2>
@@ -33,7 +33,7 @@ export default async function Home() {
             </section>
 
             {/* Results Section */}
-            <section className="border">
+            <section className="border rounded-sm">
               <h2 className="text-white text-xl font-bold py-4 px-6 text-center" style={{ backgroundColor: '#BF1A1A' }}>
                 RESULTS
               </h2>
@@ -43,7 +43,7 @@ export default async function Home() {
             </section>
 
             {/* Admit Card Section */}
-            <section className="border">
+            <section className="border rounded-sm">
               <h2 className="text-white text-xl font-bold py-4 px-6 text-center" style={{ backgroundColor: '#BF1A1A' }}>
                 ADMIT CARD
               </h2>

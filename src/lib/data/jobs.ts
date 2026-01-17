@@ -18,7 +18,7 @@ export interface LatestJobDetailType {
   title: string;
   slug: string;
   organization: string;
-  description?: string;
+  description: string;
   postDate: Date;
   status: string;
   seo?: {
@@ -33,10 +33,10 @@ export interface LatestJobDetailType {
     category: string;
     amount: number;
   }>;
-  ageRange?: {
-    min: number;
-    max: number;
-  };
+  ageRange?: Array<{
+    title: string;
+    value: string;
+  }>;
   vacancies?: {
     total: number;
     distribution?: Array<{
@@ -52,6 +52,8 @@ export interface LatestJobDetailType {
   importantLinks?: Array<{
     label: string;
     url: string;
+    buttonText?: string;
+    otherInfo?: string;
   }>;
 }
 
