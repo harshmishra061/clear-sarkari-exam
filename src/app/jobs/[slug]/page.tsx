@@ -31,11 +31,14 @@ export default async function JobPage({ params }: JobPageProps) {
       </header>
 
       <main className="pt-24 pb-8 flex justify-center">
-        <div style={{ width: '85%', minWidth: '720px' }}>
+        <div style={{ width: '75%', minWidth: '720px' }}>
           {/* Job Title */}
           <h1 className="text-3xl font-bold mt-8 text-center text-black">{job.title}</h1>
           <div className="m-4">
               <h2 className="text-2xl font-semibold text-green-800 text-center">{job.organization}</h2>
+            </div>
+            <div className="my-4">
+              <p className="text-justify" style={{color: "#19183B"}}>{job.description}</p>
             </div>
 
           {/* Main Content Box */}
