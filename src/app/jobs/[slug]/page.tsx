@@ -1,0 +1,170 @@
+import { getJobBySlug } from "@/lib/data/jobs";
+import { notFound } from "next/navigation";
+
+interface JobPageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+export default async function JobPage({ params }: JobPageProps) {
+  const { slug } = await params;
+  const job = await getJobBySlug(slug);
+
+  if (!job) {
+    notFound();
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="fixed top-0 left-0 w-full text-white z-50" style={{ backgroundColor: '#BF1A1A' }}>
+        <div className="container mx-auto py-6 px-4 text-center">
+          <h1 className="text-4xl font-bold">Clear Sarkari Exam</h1>
+        </div>
+      </header>
+
+      <main className="pt-24 pb-8 flex justify-center">
+        <div style={{ width: '70%' }}>
+          {/* Job Title */}
+          <h1 className="text-3xl font-bold mt-8 text-center text-black">{job.title}</h1>
+          <div className="m-4">
+              <h2 className="text-2xl font-semibold text-green-800 text-center">{job.organization}</h2>
+            </div>
+
+          {/* Main Content Box */}
+          <div className="border-2 border-black bg-white p-4">
+
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Important Dates Column */}
+              <div className="border-2 border-black p-4">
+                <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Important Dates</h3>
+                {job.importantDates && job.importantDates.length > 0 ? (
+                  <ul className="list-disc list-inside">
+                    {job.importantDates.map((date, index) => (
+                      <li key={index}><span className="font-semibold">{date.label}</span> : {date.date}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No dates available</p>
+                )}
+              </div>
+
+              {/* Application Fee Column */}
+              <div className="border-2 border-black p-4">
+                <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Application Fee</h3>
+                {job.applicationFee && job.applicationFee.length > 0 ? (
+                  <ul className="list-disc list-inside">
+                    {job.applicationFee.map((fee, index) => (
+                      <li key={index}><span className="font-semibold">{fee.category}</span> : {fee.amount}/-</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No fee information available</p>
+                )}
+              </div>
+            </div>
+
+            <br />
+
+            {/* Age Limit Section */}
+            {job.ageRange && (
+              <div className="border-2 border-black p-4">
+                <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Age Limit</h3>
+                <ul className="list-disc list-inside">
+                  <li><span className="font-semibold">Minimum Age</span> : {job.ageRange.min} years</li>
+                  <li><span className="font-semibold">Maximum Age</span> : {job.ageRange.max} years</li>
+                </ul>
+              </div>
+            )}
+
+            <br />
+            
+
+            {/* Vacancies Section */}
+            {job.vacancies && (
+              <div className="border-2 border-black p-4">
+                <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Total Vacancy : {job.vacancies.total}</h3>
+                {job.vacancies.distribution && job.vacancies.distribution.length > 0 && (
+                  <ul className="mb-4 text-center bg-yellow-300">
+                    <li>
+                      {job.vacancies.distribution.map((dist, index, array) => (
+                        <span key={index}>
+                          <span className="font-semibold">{dist.category}</span> : {dist.count}
+                          {index < array.length - 1 && ' || '}
+                        </span>
+                      ))}
+                    </li>
+                  </ul>
+                )}
+                 {job.posts && job.posts.length > 0 && (
+                  <table className="w-full border-collapse border-2 border-black">
+                    <thead>
+                      <tr className="border-b-2 border-black">
+                        <th className="text-center p-2 font-semibold border-r-2 border-black" style={{ width: '30%' }}>Post Name</th>
+                        <th className="text-center p-2 font-semibold border-r-2 border-black" style={{ width: '20%' }}>Total Post</th>
+                        <th className="text-center p-2 font-semibold" style={{ width: '50%' }}>Qualifications</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {job.posts.map((post, index) => (
+                        <tr key={index} className="border-b border-black last:border-b-0">
+                          <td className="p-2 border-r-2 border-black text-center">{post.title}</td>
+                          <td className="p-2 border-r-2 border-black text-center">{post.count}</td>
+                          <td className="p-2">
+                            {post.qualification && post.qualification.length > 0 ? (
+                              <ul className="list-disc list-inside">
+                                {post.qualification.map((qual, qIndex) => (
+                                  <li key={qIndex} className="text-justify">{qual}</li>
+                                ))}
+                              </ul>
+                            ) : (
+                              '-'
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+            )}
+              </div>
+            )}
+
+            <br />
+
+            {/* Important Links Section */}
+            {job.importantLinks && job.importantLinks.length > 0 && (
+              <div className="border-2 border-black p-4">
+                <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Important Links</h3>
+                <table className="w-full border-collapse border-2 border-black">
+                  <tbody>
+                    {job.importantLinks.map((link, index) => (
+                      <tr key={index} className="border-b border-black last:border-b-0">
+                        <td className="p-2 border-r-2 border-black text-center text-2xl font-semibold" style={{ width: '50%', color: '#BF1A1A' }}>{link.label}</td>
+                        <td className="p-2 text-center" style={{ width: '50%' }}>
+                          <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-2xl font-semibold">
+                            Click Here
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-6 mt-12">
+        <div className="container mx-auto px-6 text-center">
+          <p>&copy; 2026 Clear Sarkari Exam. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
