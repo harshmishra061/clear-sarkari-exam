@@ -26,12 +26,20 @@ export async function connectDB() {
     throw new Error("Please define MONGODB_URI in .env.local");
   }
 
+  // Use different database based on environment
+  // Development: sarkari-test
+  // Production: clear-sarkari-exam
+  const dbName = process.env.NODE_ENV === 'production' 
+    ? process.env.MONGODB_DB_NAME || 'clear-sarkari-exam'
+    : process.env.MONGODB_DB_NAME_DEV || 'sarkari-test';
+
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
-      dbName: "clear-sarkari-exam",
+      dbName,
     });
   }
 
   cached.conn = await cached.promise;
+  
   return cached.conn;
 }

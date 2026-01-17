@@ -2,6 +2,7 @@ import { getJobBySlug } from "@/lib/data/jobs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
+import ViewTracker from "@/components/ViewTracker";
 
 // Revalidate every 60 seconds (ISR)
 export const revalidate = 60;
@@ -118,13 +119,16 @@ export default async function JobPage({ params }: JobPageProps) {
     ...(job.importantDates && job.importantDates.length > 0 && {
       "validThrough": job.importantDates[job.importantDates.length - 1]?.date
     }),
-    ...(job.vacancies && {
-      "totalJobOpenings": job.vacancies.total
+    ...(job.vacancy && {
+      "totalJobOpenings": job.vacancy
     })
   };
 
   return (
     <>
+      {/* View Tracker */}
+      <ViewTracker slug={job.slug} />
+      
       {/* Structured Data */}
       <script
         type="application/ld+json"
@@ -202,56 +206,65 @@ export default async function JobPage({ params }: JobPageProps) {
 
             <br />
             
-
-            {/* Vacancies Section */}
-            {job.vacancies && (
+            {/* Vacancy Info */}
+            {job.vacancy && (
               <div className="border border-black p-4 rounded-sm">
-                <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Total Vacancy : {job.vacancies.total}</h3>
-                {job.vacancies.distribution && job.vacancies.distribution.length > 0 && (
-                  <ul className="mb-4 text-center bg-yellow-300">
-                    <li>
-                      {job.vacancies.distribution.map((dist, index, array) => (
-                        <span key={index}>
-                          <span className="font-semibold">{dist.category}</span> : {dist.count}
-                          {index < array.length - 1 && ' || '}
-                        </span>
-                      ))}
-                    </li>
-                  </ul>
-                )}
-                 {job.posts && job.posts.length > 0 && (
-                  <table className="w-full border-collapse border border-black rounded-sm">
-                    <thead>
-                      <tr className="border-b border-black">
-                        <th className="text-center p-2 font-semibold border-r border-black" style={{ width: '30%' }}>Post Name</th>
-                        <th className="text-center p-2 font-semibold border-r border-black" style={{ width: '20%' }}>Total Post</th>
-                        <th className="text-center p-2 font-semibold" style={{ width: '50%' }}>Qualifications</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {job.posts.map((post, index) => (
-                        <tr key={index} className="border-b border-black last:border-b-0">
-                          <td className="p-2 border-r border-black text-center">{post.title}</td>
-                          <td className="p-2 border-r border-black text-center">{post.count}</td>
-                          <td className="p-2">
-                            {post.qualification && post.qualification.length > 0 ? (
-                              <ul className="list-disc list-inside">
-                                {post.qualification.map((qual, qIndex) => (
-                                  <li key={qIndex} className="text-justify">{qual}</li>
-                                ))}
-                              </ul>
-                            ) : (
-                              '-'
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-
-            )}
+                <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Total Vacancy : {job.vacancy}</h3>
               </div>
             )}
+
+            {job.vacancy && <br />}
+
+            {/* Dynamic Tables Section */}
+            {job.table && job.table.length > 0 && job.table.map((tableItem, tableIndex, tableArray) => (
+              <div key={tableIndex}>
+                <div className="border border-black p-4 rounded-sm">
+                  {tableItem.title && (
+                    <h3 className="text-xl font-bold text-green-800 mb-4 text-center">{tableItem.title}</h3>
+                  )}
+                  {tableItem.columns && tableItem.columns.length > 0 && tableItem.rows && tableItem.rows.length > 0 && (
+                    <table className="w-full border-collapse border border-black rounded-sm">
+                      <thead>
+                        <tr className="border-b border-black">
+                          {tableItem.columns.map((column, colIndex) => (
+                            <th key={colIndex} className="text-center p-2 font-semibold border-r border-black last:border-r-0">
+                              {column}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tableItem.rows.map((row, rowIndex) => (
+                          <tr key={rowIndex} className="border-b border-black last:border-b-0">
+                            {row.map((cell, cellIndex) => {
+                              // Check if cell contains literal \n or actual newlines
+                              const cellContent = cell || '';
+                              const hasLineBreaks = cellContent.includes('\\n') || cellContent.includes('\n');
+                              
+                              return (
+                                <td key={cellIndex} className="p-2 border-r border-black last:border-r-0 text-center">
+                                  {hasLineBreaks ? (
+                                    // Show as bulleted list if multiple lines
+                                    <ul className="list-disc list-inside text-center">
+                                      {cellContent.split(/\\n|\n/).filter(line => line.trim()).map((line, lineIndex) => (
+                                        <li key={lineIndex}>{line.trim()}</li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    cellContent || '-'
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+                {tableIndex < tableArray.length - 1 && <br />}
+              </div>
+            ))}
 
             <br />
 
@@ -288,6 +301,11 @@ export default async function JobPage({ params }: JobPageProps) {
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-6 mt-12">
         <div className="container mx-auto px-6 text-center">
+        {job.totalViews !== undefined && job.totalViews > 0 && (
+          <p className="text-gray-800">
+            ({job.totalViews.toLocaleString()} views)
+          </p>
+      )}
           <p>&copy; 2026 Clear Sarkari Exam. All rights reserved.</p>
         </div>
       </footer>

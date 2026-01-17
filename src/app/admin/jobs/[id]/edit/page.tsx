@@ -23,11 +23,8 @@ export default function EditJobPage() {
   const [importantDates, setImportantDates] = useState([{ label: "", date: "" }]);
   const [applicationFee, setApplicationFee] = useState([{ category: "", amount: "" }]);
   const [ageRange, setAgeRange] = useState([{ title: "", value: "" }]);
-  const [vacancies, setVacancies] = useState({
-    total: "",
-    distribution: [{ category: "", count: "" }],
-  });
-  const [posts, setPosts] = useState([{ title: "", count: "", qualification: [""] }]);
+  const [vacancy, setVacancy] = useState("");
+  const [tables, setTables] = useState([{ title: "", columns: [""], rows: [[""]] }]);
   const [importantLinks, setImportantLinks] = useState([
     { label: "", url: "", buttonText: "Click Here", otherInfo: "" },
   ]);
@@ -63,12 +60,8 @@ export default function EditJobPage() {
         setApplicationFee(job.applicationFee?.length > 0 ? job.applicationFee.map((f: any) => ({ ...f, amount: String(f.amount) })) : [{ category: "", amount: "" }]);
         setAgeRange(job.ageRange?.length > 0 ? job.ageRange : [{ title: "", value: "" }]);
         
-        setVacancies({
-          total: job.vacancies?.total ? String(job.vacancies.total) : "",
-          distribution: job.vacancies?.distribution?.length > 0 ? job.vacancies.distribution.map((d: any) => ({ ...d, count: String(d.count) })) : [{ category: "", count: "" }],
-        });
-        
-        setPosts(job.posts?.length > 0 ? job.posts.map((p: any) => ({ ...p, count: String(p.count) })) : [{ title: "", count: "", qualification: [""] }]);
+        setVacancy(job.vacancy ? String(job.vacancy) : "");
+        setTables(job.table?.length > 0 ? job.table : [{ title: "", columns: [""], rows: [[""]] }]);
         setImportantLinks(job.importantLinks?.length > 0 ? job.importantLinks : [{ label: "", url: "", buttonText: "Click Here", otherInfo: "" }]);
       } else {
         alert("Failed to fetch job");
@@ -105,18 +98,13 @@ export default function EditJobPage() {
           .filter((f) => f.category && f.amount)
           .map((f) => ({ ...f, amount: Number(f.amount) })),
         ageRange: ageRange.filter((a) => a.title && a.value),
-        vacancies: {
-          total: Number(vacancies.total),
-          distribution: vacancies.distribution
-            .filter((d) => d.category && d.count)
-            .map((d) => ({ ...d, count: Number(d.count) })),
-        },
-        posts: posts
-          .filter((p) => p.title && p.count)
-          .map((p) => ({
-            ...p,
-            count: Number(p.count),
-            qualification: p.qualification.filter((q) => q),
+        vacancy: vacancy ? Number(vacancy) : undefined,
+        table: tables
+          .filter((t) => t.title || (t.columns && t.columns.some(c => c)) || (t.rows && t.rows.some(r => r.some(c => c))))
+          .map((t) => ({
+            title: t.title || undefined,
+            columns: t.columns.filter(c => c),
+            rows: t.rows.map(row => row.filter(cell => cell !== undefined)),
           })),
         importantLinks: importantLinks.filter((l) => l.label && l.url),
       };
@@ -368,136 +356,139 @@ export default function EditJobPage() {
           </button>
         </div>
 
-        {/* Vacancies */}
+        {/* Vacancy */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">Vacancies</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">Vacancy</h2>
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Total Vacancies</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Total Vacancy</label>
             <input
               type="number"
-              value={vacancies.total}
-              onChange={(e) => setVacancies({ ...vacancies, total: e.target.value })}
+              value={vacancy}
+              onChange={(e) => setVacancy(e.target.value)}
               className="w-full lg:w-1/2 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
               placeholder="e.g., 100"
             />
           </div>
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Category-wise Distribution</h3>
-          {vacancies.distribution.map((dist, index) => (
-            <div key={index} className="grid grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                value={dist.category}
-                onChange={(e) => {
-                  const newDist = [...vacancies.distribution];
-                  newDist[index].category = e.target.value;
-                  setVacancies({ ...vacancies, distribution: newDist });
-                }}
-                className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                placeholder="e.g., General"
-              />
-              <input
-                type="number"
-                value={dist.count}
-                onChange={(e) => {
-                  const newDist = [...vacancies.distribution];
-                  newDist[index].count = e.target.value;
-                  setVacancies({ ...vacancies, distribution: newDist });
-                }}
-                className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                placeholder="Count"
-              />
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() =>
-              setVacancies({
-                ...vacancies,
-                distribution: [...vacancies.distribution, { category: "", count: "" }],
-              })
-            }
-            className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-            style={{ color: '#BF1A1A' }}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Category
-          </button>
         </div>
 
-        {/* Posts */}
+        {/* Tables */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">Posts</h2>
-          {posts.map((post, postIndex) => (
-            <div key={postIndex} className="border-l-4 pl-6 py-4 mb-6 bg-gray-50 rounded-r-lg" style={{ borderColor: '#BF1A1A' }}>
-              <div className="grid grid-cols-2 gap-4 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">Tables</h2>
+          {tables.map((table, tableIndex) => (
+            <div key={tableIndex} className="mb-8 p-6 bg-gray-50 rounded-lg border-2 border-gray-200">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Table Title</label>
                 <input
                   type="text"
-                  value={post.title}
+                  value={table.title}
                   onChange={(e) => {
-                    const newPosts = [...posts];
-                    newPosts[postIndex].title = e.target.value;
-                    setPosts(newPosts);
+                    const newTables = [...tables];
+                    newTables[tableIndex].title = e.target.value;
+                    setTables(newTables);
                   }}
-                  className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                  placeholder="Post Title"
-                />
-                <input
-                  type="number"
-                  value={post.count}
-                  onChange={(e) => {
-                    const newPosts = [...posts];
-                    newPosts[postIndex].count = e.target.value;
-                    setPosts(newPosts);
-                  }}
-                  className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                  placeholder="Count"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all bg-white"
+                  placeholder="e.g., Post Details"
                 />
               </div>
-              <div className="space-y-2">
-                {post.qualification.map((qual, qualIndex) => (
+
+              {/* Visual Table Structure */}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border-2 border-gray-400 bg-white">
+                  <thead>
+                    <tr className="bg-blue-50">
+                      <th className="border-2 border-gray-400 p-2 text-center text-xs font-semibold text-gray-600 w-20">
+                        Row #
+                      </th>
+                      {table.columns.map((column, colIndex) => (
+                        <th key={colIndex} className="border-2 border-gray-400 p-1">
+                          <input
+                            type="text"
+                            value={column}
+                            onChange={(e) => {
+                              const newTables = [...tables];
+                              newTables[tableIndex].columns[colIndex] = e.target.value;
+                              setTables(newTables);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-center font-semibold bg-blue-100"
+                            placeholder={`Column ${colIndex + 1}`}
+                          />
+                        </th>
+                      ))}
+                      <th className="border-2 border-gray-400 p-2 w-20">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newTables = [...tables];
+                            newTables[tableIndex].columns.push("");
+                            newTables[tableIndex].rows = newTables[tableIndex].rows.map(row => [...row, ""]);
+                            setTables(newTables);
+                          }}
+                          className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-xs font-medium"
+                          title="Add Column"
+                        >
+                          + Col
+                        </button>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {table.rows.map((row, rowIndex) => (
+                      <tr key={rowIndex} className="hover:bg-gray-50">
+                        <td className="border-2 border-gray-400 p-2 text-center font-semibold text-gray-600 bg-gray-100">
+                          {rowIndex + 1}
+                        </td>
+                        {row.map((cell, cellIndex) => (
+                          <td key={cellIndex} className="border-2 border-gray-400 p-1">
                   <input
-                    key={qualIndex}
                     type="text"
-                    value={qual}
+                              value={cell}
                     onChange={(e) => {
-                      const newPosts = [...posts];
-                      newPosts[postIndex].qualification[qualIndex] = e.target.value;
-                      setPosts(newPosts);
+                                const newTables = [...tables];
+                                newTables[tableIndex].rows[rowIndex][cellIndex] = e.target.value;
+                                setTables(newTables);
                     }}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                    placeholder="Qualification"
-                  />
+                              className="w-full px-3 py-2 border border-gray-200 rounded focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none"
+                              placeholder="Enter value"
+                            />
+                          </td>
+                        ))}
+                        <td className="border-2 border-gray-400 p-2 text-center bg-gray-50">
+                          <span className="text-xs text-gray-400">→</span>
+                        </td>
+                      </tr>
                 ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-4 flex gap-3">
                 <button
                   type="button"
                   onClick={() => {
-                    const newPosts = [...posts];
-                    newPosts[postIndex].qualification.push("");
-                    setPosts(newPosts);
+                    const newTables = [...tables];
+                    const newRow = new Array(table.columns.length || 1).fill("");
+                    newTables[tableIndex].rows.push(newRow);
+                    setTables(newTables);
                   }}
-                  className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                  style={{ color: '#BF1A1A' }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Add Qualification
+                  Add Row
                 </button>
               </div>
             </div>
           ))}
           <button
             type="button"
-            onClick={() => setPosts([...posts, { title: "", count: "", qualification: [""] }])}
-            className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-            style={{ color: '#BF1A1A' }}
+            onClick={() => setTables([...tables, { title: "", columns: ["Column 1", "Column 2"], rows: [["", ""]] }])}
+            className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-lg bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 transition-all shadow-md"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Add Post
+            Add New Table
           </button>
         </div>
 

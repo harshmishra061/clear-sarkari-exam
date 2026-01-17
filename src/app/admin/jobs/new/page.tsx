@@ -19,16 +19,55 @@ export default function CreateJobPage() {
   const [importantDates, setImportantDates] = useState([{ label: "", date: "" }]);
   const [applicationFee, setApplicationFee] = useState([{ category: "", amount: "" }]);
   const [ageRange, setAgeRange] = useState([{ title: "", value: "" }]);
-  const [vacancies, setVacancies] = useState({
-    total: "",
-    distribution: [{ category: "", count: "" }],
-  });
-  const [posts, setPosts] = useState([{ title: "", count: "", qualification: [""] }]);
+  const [vacancy, setVacancy] = useState("");
+  const [tables, setTables] = useState([{ title: "", columns: [""], rows: [[""]] }]);
   const [importantLinks, setImportantLinks] = useState([
     { label: "", url: "", buttonText: "Click Here", otherInfo: "" },
   ]);
   const [showImport, setShowImport] = useState(false);
   const [importJson, setImportJson] = useState("");
+
+  const STORAGE_KEY = 'createJobFormData_v2'; // Changed key to avoid conflicts
+
+  // Load saved form data on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData);
+          if (parsed.formData) setFormData(parsed.formData);
+          if (parsed.importantDates) setImportantDates(parsed.importantDates);
+          if (parsed.applicationFee) setApplicationFee(parsed.applicationFee);
+          if (parsed.ageRange) setAgeRange(parsed.ageRange);
+          if (parsed.vacancy) setVacancy(parsed.vacancy);
+          if (parsed.tables) setTables(parsed.tables);
+          if (parsed.importantLinks) setImportantLinks(parsed.importantLinks);
+        } catch (error) {
+          console.error('Error loading saved form data:', error);
+        }
+      }
+    }
+  }, []);
+
+  // Auto-save form data to localStorage with debouncing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const dataToSave = {
+        formData,
+        importantDates,
+        applicationFee,
+        ageRange,
+        vacancy,
+        tables,
+        importantLinks,
+        savedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+    }, 1000); // 1 second debounce
+
+    return () => clearTimeout(timer);
+  }, [formData, importantDates, applicationFee, ageRange, vacancy, tables, importantLinks]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -50,6 +89,7 @@ export default function CreateJobPage() {
 
   // Import from JSON
   const handleImport = () => {
+    try {
     const data = JSON.parse(importJson);
     
     if (data.title !== undefined) setFormData(prev => ({ ...prev, title: data.title }));
@@ -60,16 +100,16 @@ export default function CreateJobPage() {
     if (data.importantDates) setImportantDates(data.importantDates);
     if (data.applicationFee) setApplicationFee(data.applicationFee.map((f: { category: string; amount: number | string }) => ({ ...f, amount: f.amount.toString() })));
     if (data.ageRange) setAgeRange(data.ageRange);
-    if (data.vacancies) setVacancies({
-      total: data.vacancies.total?.toString() || "",
-      distribution: data.vacancies.distribution?.map((d: { category: string; count: number | string }) => ({ ...d, count: d.count.toString() })) || []
-    });
-    if (data.posts) setPosts(data.posts.map((p: { title: string; count: number | string; qualification: string[] }) => ({ ...p, count: p.count.toString() })));
+      if (data.vacancy !== undefined) setVacancy(data.vacancy.toString());
+      if (data.table) setTables(data.table);
     if (data.importantLinks) setImportantLinks(data.importantLinks);
 
     alert("Data imported successfully!");
     setShowImport(false);
     setImportJson("");
+    } catch (error) {
+      alert("Error parsing JSON: " + (error instanceof Error ? error.message : "Invalid JSON"));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,18 +124,13 @@ export default function CreateJobPage() {
           .filter((f) => f.category && f.amount)
           .map((f) => ({ ...f, amount: Number(f.amount) })),
         ageRange: ageRange.filter((a) => a.title && a.value),
-        vacancies: {
-          total: Number(vacancies.total),
-          distribution: vacancies.distribution
-            .filter((d) => d.category && d.count)
-            .map((d) => ({ ...d, count: Number(d.count) })),
-        },
-        posts: posts
-          .filter((p) => p.title && p.count)
-          .map((p) => ({
-            ...p,
-            count: Number(p.count),
-            qualification: p.qualification.filter((q) => q),
+        vacancy: vacancy ? Number(vacancy) : undefined,
+        table: tables
+          .filter((t) => t.title || (t.columns && t.columns.some(c => c)) || (t.rows && t.rows.some(r => r.some(c => c))))
+          .map((t) => ({
+            title: t.title || undefined,
+            columns: t.columns.filter(c => c),
+            rows: t.rows.map(row => row.filter(cell => cell !== undefined)),
           })),
         importantLinks: importantLinks.filter((l) => l.label && l.url),
       };
@@ -107,6 +142,8 @@ export default function CreateJobPage() {
       });
 
       if (response.ok) {
+        // Clear saved form data on successful creation
+        localStorage.removeItem(STORAGE_KEY);
         alert("Job created successfully!");
         router.push("/admin/jobs");
       } else {
@@ -118,6 +155,22 @@ export default function CreateJobPage() {
       alert("Failed to create job");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Clear saved form data manually
+  const clearSavedData = () => {
+    if (confirm("Are you sure you want to clear all saved form data? This cannot be undone.")) {
+      localStorage.removeItem(STORAGE_KEY);
+      // Reset all form fields
+      setFormData({ title: "", slug: "", organization: "", description: "", status: "active" });
+      setImportantDates([{ label: "", date: "" }]);
+      setApplicationFee([{ category: "", amount: "" }]);
+      setAgeRange([{ title: "", value: "" }]);
+      setVacancy("");
+      setTables([{ title: "", columns: [""], rows: [[""]] }]);
+      setImportantLinks([{ label: "", url: "", buttonText: "Click Here", otherInfo: "" }]);
+      alert("Saved form data cleared!");
     }
   };
 
@@ -133,12 +186,36 @@ export default function CreateJobPage() {
     return null;
   }
 
+  const hasSavedData = typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEY);
+
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Create New Job</h1>
         <p className="text-gray-500 mt-2">Fill in the details below to create a new job posting</p>
       </div>
+
+      {/* Auto-save notification */}
+      {hasSavedData && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-sm font-medium text-green-900">Previous work restored</p>
+              <p className="text-xs text-green-700">Your form data is auto-saved as you type</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={clearSavedData}
+            className="px-3 py-1.5 text-sm bg-white text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors font-medium"
+          >
+            Clear Saved Data
+          </button>
+        </div>
+      )}
 
       {/* Import from JSON */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-blue-100 mb-6">
@@ -174,10 +251,12 @@ export default function CreateJobPage() {
   "importantDates": [{"label": "Application Begin", "date": "2026-01-20"}],
   "applicationFee": [{"category": "General", "amount": 500}],
   "ageRange": [{"title": "Minimum Age", "value": "18 Years"}],
-  "vacancies": {"total": 100, "distribution": [{"category": "General", "count": 50}]},
-  "posts": [{"title": "Engineer", "count": 50, "qualification": ["B.Tech"]}],
+  "vacancy": 100,
+  "table": [{"title": "Post Details", "columns": ["Post Name", "Height"], "rows": [["Constable", "168 CMS (160 CMS ST)\\n152 CMS Female"]]}],
   "importantLinks": [{"label": "Official Website", "url": "https://example.com"}]
-}`}
+}
+
+Note: Use \\n in table cells for line breaks (each line appears on new line)`}
               />
             </div>
             <div className="flex gap-3">
@@ -407,136 +486,139 @@ export default function CreateJobPage() {
           </button>
         </div>
 
-        {/* Vacancies */}
+        {/* Vacancy */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">Vacancies</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">Vacancy</h2>
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Total Vacancies</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Total Vacancy</label>
             <input
               type="number"
-              value={vacancies.total}
-              onChange={(e) => setVacancies({ ...vacancies, total: e.target.value })}
+              value={vacancy}
+              onChange={(e) => setVacancy(e.target.value)}
               className="w-full lg:w-1/2 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
               placeholder="e.g., 100"
             />
           </div>
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Category-wise Distribution</h3>
-          {vacancies.distribution.map((dist, index) => (
-            <div key={index} className="grid grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                value={dist.category}
-                onChange={(e) => {
-                  const newDist = [...vacancies.distribution];
-                  newDist[index].category = e.target.value;
-                  setVacancies({ ...vacancies, distribution: newDist });
-                }}
-                className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                placeholder="e.g., General"
-              />
-              <input
-                type="number"
-                value={dist.count}
-                onChange={(e) => {
-                  const newDist = [...vacancies.distribution];
-                  newDist[index].count = e.target.value;
-                  setVacancies({ ...vacancies, distribution: newDist });
-                }}
-                className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                placeholder="Count"
-              />
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() =>
-              setVacancies({
-                ...vacancies,
-                distribution: [...vacancies.distribution, { category: "", count: "" }],
-              })
-            }
-            className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-            style={{ color: '#BF1A1A' }}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Category
-          </button>
         </div>
 
-        {/* Posts */}
+        {/* Tables */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">Posts</h2>
-          {posts.map((post, postIndex) => (
-            <div key={postIndex} className="border-l-4 pl-6 py-4 mb-6 bg-gray-50 rounded-r-lg" style={{ borderColor: '#BF1A1A' }}>
-              <div className="grid grid-cols-2 gap-4 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">Tables</h2>
+          {tables.map((table, tableIndex) => (
+            <div key={tableIndex} className="mb-8 p-6 bg-gray-50 rounded-lg border-2 border-gray-200">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Table Title</label>
                 <input
                   type="text"
-                  value={post.title}
+                  value={table.title}
                   onChange={(e) => {
-                    const newPosts = [...posts];
-                    newPosts[postIndex].title = e.target.value;
-                    setPosts(newPosts);
+                    const newTables = [...tables];
+                    newTables[tableIndex].title = e.target.value;
+                    setTables(newTables);
                   }}
-                  className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                  placeholder="Post Title"
-                />
-                <input
-                  type="number"
-                  value={post.count}
-                  onChange={(e) => {
-                    const newPosts = [...posts];
-                    newPosts[postIndex].count = e.target.value;
-                    setPosts(newPosts);
-                  }}
-                  className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                  placeholder="Count"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all bg-white"
+                  placeholder="e.g., Post Details"
                 />
               </div>
-              <div className="space-y-2">
-                {post.qualification.map((qual, qualIndex) => (
+
+              {/* Visual Table Structure */}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border-2 border-gray-400 bg-white">
+                  <thead>
+                    <tr className="bg-blue-50">
+                      <th className="border-2 border-gray-400 p-2 text-center text-xs font-semibold text-gray-600 w-20">
+                        Row #
+                      </th>
+                      {table.columns.map((column, colIndex) => (
+                        <th key={colIndex} className="border-2 border-gray-400 p-1">
+                          <input
+                            type="text"
+                            value={column}
+                            onChange={(e) => {
+                              const newTables = [...tables];
+                              newTables[tableIndex].columns[colIndex] = e.target.value;
+                              setTables(newTables);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-center font-semibold bg-blue-100"
+                            placeholder={`Column ${colIndex + 1}`}
+                          />
+                        </th>
+                      ))}
+                      <th className="border-2 border-gray-400 p-2 w-20">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newTables = [...tables];
+                            newTables[tableIndex].columns.push("");
+                            newTables[tableIndex].rows = newTables[tableIndex].rows.map(row => [...row, ""]);
+                            setTables(newTables);
+                          }}
+                          className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-xs font-medium"
+                          title="Add Column"
+                        >
+                          + Col
+                        </button>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {table.rows.map((row, rowIndex) => (
+                      <tr key={rowIndex} className="hover:bg-gray-50">
+                        <td className="border-2 border-gray-400 p-2 text-center font-semibold text-gray-600 bg-gray-100">
+                          {rowIndex + 1}
+                        </td>
+                        {row.map((cell, cellIndex) => (
+                          <td key={cellIndex} className="border-2 border-gray-400 p-1">
                   <input
-                    key={qualIndex}
                     type="text"
-                    value={qual}
+                              value={cell}
                     onChange={(e) => {
-                      const newPosts = [...posts];
-                      newPosts[postIndex].qualification[qualIndex] = e.target.value;
-                      setPosts(newPosts);
+                                const newTables = [...tables];
+                                newTables[tableIndex].rows[rowIndex][cellIndex] = e.target.value;
+                                setTables(newTables);
                     }}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
-                    placeholder="Qualification"
-                  />
+                              className="w-full px-3 py-2 border border-gray-200 rounded focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none"
+                              placeholder="Enter value"
+                            />
+                          </td>
+                        ))}
+                        <td className="border-2 border-gray-400 p-2 text-center bg-gray-50">
+                          <span className="text-xs text-gray-400">→</span>
+                        </td>
+                      </tr>
                 ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-4 flex gap-3">
                 <button
                   type="button"
                   onClick={() => {
-                    const newPosts = [...posts];
-                    newPosts[postIndex].qualification.push("");
-                    setPosts(newPosts);
+                    const newTables = [...tables];
+                    const newRow = new Array(table.columns.length || 1).fill("");
+                    newTables[tableIndex].rows.push(newRow);
+                    setTables(newTables);
                   }}
-                  className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                  style={{ color: '#BF1A1A' }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Add Qualification
+                  Add Row
                 </button>
               </div>
             </div>
           ))}
           <button
             type="button"
-            onClick={() => setPosts([...posts, { title: "", count: "", qualification: [""] }])}
-            className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-            style={{ color: '#BF1A1A' }}
+            onClick={() => setTables([...tables, { title: "", columns: ["Column 1", "Column 2"], rows: [["", ""]] }])}
+            className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-lg bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 transition-all shadow-md"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Add Post
+            Add New Table
           </button>
         </div>
 
