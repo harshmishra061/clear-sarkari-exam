@@ -6,6 +6,8 @@ const LatestJobSchema = new Schema(
     slug: { type: String, required: true, unique: true },
     organization: { type: String, required: true },
     description: { type: String, required: true },
+    vacancy: { type: Number },
+    totalViews: { type: Number, default: 0 },
     postDate: { type: Date, default: Date.now },
     status: { type: String, enum: ["active", "expired"], default: "active" },
     seo: {
@@ -28,18 +30,11 @@ const LatestJobSchema = new Schema(
         value: { type: String, required: true },
       }
     ],
-    vacancies: {
-      total: { type: Number, required: true },
-      distribution: [{
-        category: { type: String, required: true },
-        count: { type: Number, required: true },
-      }],
-    },
     
-    posts: [{
-      title: { type: String, required: true },
-      count: { type: Number, required: true },
-      qualification: [String],
+    table: [{
+      title: { type: String },
+      columns: [{ type: String }],
+      rows: [[{ type: String }]],
     }],
     
     importantLinks: [{

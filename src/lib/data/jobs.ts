@@ -19,6 +19,8 @@ export interface LatestJobDetailType {
   slug: string;
   organization: string;
   description: string;
+  vacancy?: number;
+  totalViews?: number;
   postDate: Date;
   status: string;
   seo?: {
@@ -37,17 +39,10 @@ export interface LatestJobDetailType {
     title: string;
     value: string;
   }>;
-  vacancies?: {
-    total: number;
-    distribution?: Array<{
-      category: string;
-      count: number;
-    }>;
-  };
-  posts?: Array<{
-    title: string;
-    count: number;
-    qualification?: string[];
+  table?: Array<{
+    title?: string;
+    columns?: string[];
+    rows?: string[][];
   }>;
   importantLinks?: Array<{
     label: string;
