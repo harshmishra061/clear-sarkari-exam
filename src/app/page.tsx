@@ -24,13 +24,13 @@ export default async function Home() {
               <h2 className="text-white text-xl font-bold py-4 px-6 text-center" style={{ backgroundColor: '#BF1A1A' }}>
                 LATEST JOBS
               </h2>
-              <div className="p-6">
+              <div className="p-3">
                 {latestJobs.length > 0 ? (
                     latestJobs.map((job) => (
                         <Link 
                           key={job._id} 
                           href={`/jobs/${job.slug}`} 
-                          className="block py-1 px-2 underline text-blue-600 visited:text-blue-900 truncate"
+                          className="block py-2 px-2 underline text-blue-600 visited:text-blue-900 truncate-2-line leading-tight"
                           prefetch={true}
                           title={job.title}
                         >
