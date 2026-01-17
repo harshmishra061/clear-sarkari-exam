@@ -27,6 +27,8 @@ export default function CreateJobPage() {
   const [importantLinks, setImportantLinks] = useState([
     { label: "", url: "", buttonText: "Click Here", otherInfo: "" },
   ]);
+  const [showImport, setShowImport] = useState(false);
+  const [importJson, setImportJson] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -44,6 +46,30 @@ export default function CreateJobPage() {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, ""),
     });
+  };
+
+  // Import from JSON
+  const handleImport = () => {
+    const data = JSON.parse(importJson);
+    
+    if (data.title !== undefined) setFormData(prev => ({ ...prev, title: data.title }));
+    if (data.slug !== undefined) setFormData(prev => ({ ...prev, slug: data.slug }));
+    if (data.organization !== undefined) setFormData(prev => ({ ...prev, organization: data.organization }));
+    if (data.description !== undefined) setFormData(prev => ({ ...prev, description: data.description }));
+    if (data.status !== undefined) setFormData(prev => ({ ...prev, status: data.status }));
+    if (data.importantDates) setImportantDates(data.importantDates);
+    if (data.applicationFee) setApplicationFee(data.applicationFee.map((f: { category: string; amount: number | string }) => ({ ...f, amount: f.amount.toString() })));
+    if (data.ageRange) setAgeRange(data.ageRange);
+    if (data.vacancies) setVacancies({
+      total: data.vacancies.total?.toString() || "",
+      distribution: data.vacancies.distribution?.map((d: { category: string; count: number | string }) => ({ ...d, count: d.count.toString() })) || []
+    });
+    if (data.posts) setPosts(data.posts.map((p: { title: string; count: number | string; qualification: string[] }) => ({ ...p, count: p.count.toString() })));
+    if (data.importantLinks) setImportantLinks(data.importantLinks);
+
+    alert("Data imported successfully!");
+    setShowImport(false);
+    setImportJson("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,6 +138,69 @@ export default function CreateJobPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Create New Job</h1>
         <p className="text-gray-500 mt-2">Fill in the details below to create a new job posting</p>
+      </div>
+
+      {/* Import from JSON */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-blue-100 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Import from JSON</h2>
+            <p className="text-sm text-gray-600 mt-1">Quickly fill the form by pasting JSON data</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowImport(!showImport)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            {showImport ? "Hide" : "Show"} Import
+          </button>
+        </div>
+
+        {showImport && (
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Paste JSON Object
+              </label>
+              <textarea
+                value={importJson}
+                onChange={(e) => setImportJson(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none transition-all font-mono text-sm"
+                rows={10}
+                placeholder={`{
+  "title": "Railway Recruitment 2026",
+  "organization": "Indian Railways",
+  "description": "Job description here...",
+  "importantDates": [{"label": "Application Begin", "date": "2026-01-20"}],
+  "applicationFee": [{"category": "General", "amount": 500}],
+  "ageRange": [{"title": "Minimum Age", "value": "18 Years"}],
+  "vacancies": {"total": 100, "distribution": [{"category": "General", "count": 50}]},
+  "posts": [{"title": "Engineer", "count": 50, "qualification": ["B.Tech"]}],
+  "importantLinks": [{"label": "Official Website", "url": "https://example.com"}]
+}`}
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleImport}
+                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+              >
+                Import Data
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setImportJson("");
+                  setShowImport(false);
+                }}
+                className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
