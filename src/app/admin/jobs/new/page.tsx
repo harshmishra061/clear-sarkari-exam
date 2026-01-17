@@ -87,6 +87,66 @@ export default function CreateJobPage() {
     });
   };
 
+  // Copy schema structure to clipboard
+  const copySchemaStructure = async () => {
+    const schemaTemplate = {
+      title: "Job Title Here",
+      slug: "job-slug-here",
+      organization: "Organization Name",
+      description: "Detailed job description...",
+      vacancy: 100,
+      status: "active",
+      seo: {
+        title: "SEO Title",
+        description: "SEO Description"
+      },
+      importantDates: [
+        { label: "Application Begin", date: "DD/MM/YYYY" },
+        { label: "Last Date", date: "DD/MM/YYYY" }
+      ],
+      applicationFee: [
+        { category: "General/UR/OBC", amount: 500 },
+        { category: "SC/ST/PWD", amount: 250 }
+      ],
+      ageRange: [
+        { title: "Minimum Age", value: "18 Years" },
+        { title: "Maximum Age", value: "30 Years" },
+        { title: "Age as on", value: "DD/MM/YYYY" }
+      ],
+      table: [
+        {
+          title: "Table Title (e.g., Post Details)",
+          columns: ["Column 1", "Column 2", "Column 3"],
+          rows: [
+            ["Row 1 Cell 1", "Row 1 Cell 2", "Row 1 Cell 3"],
+            ["Row 2 Cell 1", "Row 2 Cell 2\nMultiline text", "Row 2 Cell 3"]
+          ]
+        }
+      ],
+      importantLinks: [
+        {
+          label: "Apply Online",
+          url: "https://example.com",
+          buttonText: "Click Here",
+          otherInfo: "Additional information (optional)"
+        },
+        {
+          label: "Download Notification",
+          url: "https://example.com/notification.pdf",
+          buttonText: "Download PDF"
+        }
+      ]
+    };
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(schemaTemplate, null, 2));
+      alert('Schema structure copied to clipboard!');
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      alert('Failed to copy to clipboard. Please try again.');
+    }
+  };
+
   // Import from JSON
   const handleImport = () => {
     try {
@@ -158,22 +218,6 @@ export default function CreateJobPage() {
     }
   };
 
-  // Clear saved form data manually
-  const clearSavedData = () => {
-    if (confirm("Are you sure you want to clear all saved form data? This cannot be undone.")) {
-      localStorage.removeItem(STORAGE_KEY);
-      // Reset all form fields
-      setFormData({ title: "", slug: "", organization: "", description: "", status: "active" });
-      setImportantDates([{ label: "", date: "" }]);
-      setApplicationFee([{ category: "", amount: "" }]);
-      setAgeRange([{ title: "", value: "" }]);
-      setVacancy("");
-      setTables([{ title: "", columns: [""], rows: [[""]] }]);
-      setImportantLinks([{ label: "", url: "", buttonText: "Click Here", otherInfo: "" }]);
-      alert("Saved form data cleared!");
-    }
-  };
-
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center py-20">
@@ -186,36 +230,12 @@ export default function CreateJobPage() {
     return null;
   }
 
-  const hasSavedData = typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEY);
-
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Create New Job</h1>
         <p className="text-gray-500 mt-2">Fill in the details below to create a new job posting</p>
       </div>
-
-      {/* Auto-save notification */}
-      {hasSavedData && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div>
-              <p className="text-sm font-medium text-green-900">Previous work restored</p>
-              <p className="text-xs text-green-700">Your form data is auto-saved as you type</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={clearSavedData}
-            className="px-3 py-1.5 text-sm bg-white text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors font-medium"
-          >
-            Clear Saved Data
-          </button>
-        </div>
-      )}
 
       {/* Import from JSON */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-blue-100 mb-6">
@@ -224,13 +244,26 @@ export default function CreateJobPage() {
             <h2 className="text-lg font-semibold text-gray-900">Import from JSON</h2>
             <p className="text-sm text-gray-600 mt-1">Quickly fill the form by pasting JSON data</p>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowImport(!showImport)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            {showImport ? "Hide" : "Show"} Import
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={copySchemaStructure}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center gap-2"
+              title="Copy schema structure to clipboard"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Copy Schema
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowImport(!showImport)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              {showImport ? "Hide" : "Show"} Import
+            </button>
+          </div>
         </div>
 
         {showImport && (
