@@ -22,7 +22,13 @@ export default async function Home() {
               <div className="p-6">
                 {latestJobs.length > 0 ? (
                     latestJobs.map((job) => (
-                        <Link key={job._id} href={`/jobs/${job.slug}`} className="block hover:text-blue-700 py-1">
+                        <Link 
+                          key={job._id} 
+                          href={`/jobs/${job.slug}`} 
+                          className="block py-1 px-2 underline visited:text-blue-600 truncate"
+                          prefetch={true}
+                          title={job.title}
+                        >
                           {job.title}
                         </Link>
                     ))
