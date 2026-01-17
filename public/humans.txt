@@ -1,0 +1,13 @@
+/* TEAM */
+Developer: Clear Sarkari Exam Team
+Site: https://clear-sarkari-exam.vercel.app
+Location: India
+
+/* SITE */
+Standards: HTML5, CSS3, JavaScript
+Components: Next.js, React, TypeScript, Tailwind CSS
+Software: Visual Studio Code
+
+/* THANKS */
+Thank you for visiting Clear Sarkari Exam!
+We help millions of candidates stay updated with latest government job notifications.

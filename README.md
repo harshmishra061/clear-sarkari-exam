@@ -1,36 +1,193 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clear Sarkari Exam
+
+A comprehensive platform for government job notifications, results, and admit cards in India. Built with Next.js 16, React 19, TypeScript, and MongoDB.
+
+## Features
+
+- 📋 **Latest Job Notifications** - Real-time updates on government job openings
+- 📊 **Results & Admit Cards** - Quick access to exam results and admit cards
+- 🔍 **SEO Optimized** - Fully optimized for search engines
+- ⚡ **Fast Performance** - ISR (Incremental Static Regeneration) for optimal speed
+- 📱 **PWA Ready** - Progressive Web App support
+- 🎨 **Modern UI** - Clean and responsive design
+- 🔐 **Admin Panel** - Secure admin dashboard for content management
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Frontend:** React 19, TypeScript, Tailwind CSS
+- **Backend:** Next.js API Routes
+- **Database:** MongoDB with Mongoose
+- **Authentication:** NextAuth.js
+- **SEO:** Dynamic sitemap, robots.txt, structured data (JSON-LD)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 20+ 
+- MongoDB database
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd clear-sarkari-exam
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env.local` and add your configuration:
+```env
+MONGODB_URI=your_mongodb_connection_string
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_key
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
 
-## Learn More
+4. Create an admin user:
+```bash
+npm run create-admin
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Run the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+clear-sarkari-exam/
+├── src/
+│   ├── app/                    # Next.js App Router pages
+│   │   ├── admin/             # Admin panel routes
+│   │   ├── api/               # API routes
+│   │   ├── jobs/              # Job detail pages
+│   │   ├── layout.tsx         # Root layout with SEO metadata
+│   │   ├── page.tsx           # Homepage
+│   │   ├── sitemap.ts         # Dynamic sitemap
+│   │   └── opengraph-image.tsx # OG image generator
+│   ├── components/            # React components
+│   ├── lib/                   # Utility functions
+│   │   ├── data/             # Data fetching functions
+│   │   ├── seo/              # SEO utilities
+│   │   └── mongoose.ts       # Database connection
+│   ├── models/               # MongoDB models
+│   └── types/                # TypeScript types
+├── public/                    # Static files
+│   ├── robots.txt            # Search engine crawling rules
+│   ├── manifest.json         # PWA manifest
+│   └── browserconfig.xml     # Windows tile configuration
+└── scripts/                   # Utility scripts
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## SEO Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+✅ **Comprehensive SEO Implementation:**
+- Dynamic XML sitemap (`/sitemap.xml`)
+- Robots.txt configuration
+- Meta tags (title, description, keywords)
+- Open Graph tags for social sharing
+- Twitter Card support
+- Structured data (JSON-LD) for JobPosting, Organization, WebSite
+- Canonical URLs
+- PWA manifest
+- Dynamic OG image generation
+- 404 page optimization
+
+See [SEO_CHECKLIST.md](./SEO_CHECKLIST.md) for detailed SEO setup instructions.
+
+## Admin Panel
+
+Access the admin panel at `/admin/login` with your admin credentials.
+
+Features:
+- Create, edit, and delete job postings
+- Manage job status (active/expired)
+- Change admin password
+- SEO metadata management per job
+
+## Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run create-admin # Create new admin user
+npm run reset-password # Reset admin password
+```
+
+## API Routes
+
+- `POST /api/admin/jobs` - Create new job
+- `GET /api/admin/jobs` - Get all jobs
+- `PUT /api/admin/jobs/[id]` - Update job
+- `DELETE /api/admin/jobs/[id]` - Delete job
+- `POST /api/admin/change-password` - Change admin password
+- `POST /api/revalidate` - Trigger ISR revalidation
+
+## Database Models
+
+### LatestJob
+- Job title, slug, organization
+- Description and SEO metadata
+- Important dates and application fees
+- Age limits and vacancy details
+- Post-wise qualifications
+- Important links
+
+### Admin
+- Email and hashed password
+- Role-based access control
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import project in Vercel
+3. Add environment variables
+4. Deploy
+
+### Other Platforms
+
+Build the production bundle:
+```bash
+npm run build
+npm start
+```
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `MONGODB_URI` | MongoDB connection string | Yes |
+| `NEXTAUTH_URL` | Application URL | Yes |
+| `NEXTAUTH_SECRET` | NextAuth secret key | Yes |
+| `NEXT_PUBLIC_BASE_URL` | Public base URL for SEO | Yes |
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is private and proprietary.
+
+## Support
+
+For support, email support@clearsarkariexam.com or create an issue in the repository.

@@ -1,14 +1,92 @@
 import { getLatestJobs } from "@/lib/data/jobs";
 import Link from "next/link";
+import { Metadata } from "next";
 
 // Revalidate every 60 seconds (ISR)
 export const revalidate = 60;
 
+export const metadata: Metadata = {
+  title: "Clear Sarkari Exam - Latest Government Job Notifications 2026",
+  description: "Get latest government job notifications, Sarkari exam updates, results, and admit cards. Your one-stop destination for central and state government job openings in India.",
+  keywords: [
+    "sarkari exam",
+    "government jobs 2026",
+    "sarkari naukri",
+    "latest government jobs",
+    "sarkari result",
+    "admit card download",
+    "government job notification",
+    "central government jobs",
+    "state government jobs",
+    "job updates"
+  ],
+};
+
 export default async function Home() {
   const latestJobs = await getLatestJobs();
 
+  // Structured data for Organization and Website
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Clear Sarkari Exam",
+    "url": process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app",
+    "logo": `${process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app"}/opengraph-image`,
+    "description": "Latest Government Job Notifications, Results and Admit Cards",
+    "sameAs": [
+      // Add your social media links here when available
+      // "https://www.facebook.com/clearsarkariexam",
+      // "https://twitter.com/clearsarkariexam",
+      // "https://www.instagram.com/clearsarkariexam"
+    ]
+  };
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Clear Sarkari Exam",
+    "url": process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app",
+    "description": "Latest Government Job Notifications, Results and Admit Cards",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app"}/search?q={search_term_string}`
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app"
+      }
+    ]
+  };
+
   return (
-    <div>
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      
+      <div>
       <header className="fixed top-0 left-0 text-white z-50" style={{ backgroundColor: '#BF1A1A', width: '100%', minWidth: '1024px' }}>
         <div className="py-6 px-4 text-center">
           <Link href="/">
@@ -65,6 +143,7 @@ export default async function Home() {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import { getJobBySlug } from "@/lib/data/jobs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Metadata } from "next";
 
 // Revalidate every 60 seconds (ISR)
 export const revalidate = 60;
@@ -11,6 +12,77 @@ interface JobPageProps {
   }>;
 }
 
+// Generate metadata for SEO
+export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const job = await getJobBySlug(slug);
+
+  if (!job) {
+    return {
+      title: "Job Not Found",
+      description: "The requested job posting could not be found.",
+    };
+  }
+
+  const title = job.seo?.title || `${job.title} - ${job.organization}`;
+  const description = job.seo?.description || 
+    `${job.title} notification by ${job.organization}. ${job.description.substring(0, 150)}...`;
+  
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://clear-sarkari-exam.vercel.app';
+  const url = `${baseUrl}/jobs/${job.slug}`;
+
+  return {
+    title,
+    description,
+    keywords: [
+      job.title,
+      job.organization,
+      'government job',
+      'sarkari exam',
+      'job notification',
+      'latest vacancy',
+      'government recruitment',
+    ],
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: 'Clear Sarkari Exam',
+      type: 'article',
+      publishedTime: job.postDate.toISOString(),
+      authors: ['Clear Sarkari Exam'],
+      images: [
+        {
+          url: '/opengraph-image',
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/opengraph-image'],
+    },
+    alternates: {
+      canonical: url,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  };
+}
+
 export default async function JobPage({ params }: JobPageProps) {
   const { slug } = await params;
   const job = await getJobBySlug(slug);
@@ -19,16 +91,55 @@ export default async function JobPage({ params }: JobPageProps) {
     notFound();
   }
 
+  // Structured data for SEO (JSON-LD)
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    "title": job.title,
+    "description": job.description,
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": job.organization,
+      "value": job.slug
+    },
+    "datePosted": job.postDate.toISOString(),
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.organization,
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "IN"
+      }
+    },
+    "employmentType": "FULL_TIME",
+    ...(job.importantDates && job.importantDates.length > 0 && {
+      "validThrough": job.importantDates[job.importantDates.length - 1]?.date
+    }),
+    ...(job.vacancies && {
+      "totalJobOpenings": job.vacancies.total
+    })
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50" style={{ minWidth: '1024px' }}>
-      {/* Header */}
-      <header className="fixed top-0 left-0 text-white z-50" style={{ backgroundColor: '#BF1A1A', width: '100%', minWidth: '1024px' }}>
-        <div className="py-6 px-4 text-center">
-          <Link href="/">
-            <h1 className="text-4xl font-bold cursor-pointer hover:opacity-90 transition-opacity">Clear Sarkari Exam</h1>
-          </Link>
-        </div>
-      </header>
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      
+      <div className="min-h-screen bg-gray-50" style={{ minWidth: '1024px' }}>
+        {/* Header */}
+        <header className="fixed top-0 left-0 text-white z-50" style={{ backgroundColor: '#BF1A1A', width: '100%', minWidth: '1024px' }}>
+          <div className="py-6 px-4 text-center">
+            <Link href="/">
+              <h1 className="text-4xl font-bold cursor-pointer hover:opacity-90 transition-opacity">Clear Sarkari Exam</h1>
+            </Link>
+          </div>
+        </header>
 
       <main className="pt-24 pb-8 flex justify-center">
         <div style={{ width: '75%', minWidth: '720px' }}>
@@ -180,6 +291,7 @@ export default async function JobPage({ params }: JobPageProps) {
           <p>&copy; 2026 Clear Sarkari Exam. All rights reserved.</p>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }
