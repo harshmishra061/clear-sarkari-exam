@@ -31,7 +31,7 @@ export default async function JobPage({ params }: JobPageProps) {
       </header>
 
       <main className="pt-24 pb-8 flex justify-center">
-        <div style={{ width: '70%', minWidth: '720px' }}>
+        <div style={{ width: '85%', minWidth: '720px' }}>
           {/* Job Title */}
           <h1 className="text-3xl font-bold mt-8 text-center text-black">{job.title}</h1>
           <div className="m-4">

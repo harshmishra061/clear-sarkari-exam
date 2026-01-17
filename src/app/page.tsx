@@ -18,7 +18,7 @@ export default async function Home() {
       </header>
       <main className="pt-24">
         <div className="w-full mx-auto px-10 py-8" style={{ minWidth: '1024px' }}>
-          <div className="grid grid-cols-3 gap-10">
+          <div className="grid grid-cols-3 gap-5">
             {/* Latest Jobs Section */}
             <section className="border rounded-sm">
               <h2 className="text-white text-xl font-bold py-4 px-6 text-center" style={{ backgroundColor: '#BF1A1A' }}>
@@ -30,7 +30,7 @@ export default async function Home() {
                         <Link 
                           key={job._id} 
                           href={`/jobs/${job.slug}`} 
-                          className="block py-2 px-2 underline text-blue-600 visited:text-blue-900 truncate-2-line leading-tight"
+                          className="block py-1.5 px-2 underline text-blue-600 visited:text-blue-900 truncate-2-line leading-tight"
                           prefetch={true}
                           title={job.title}
                         >
