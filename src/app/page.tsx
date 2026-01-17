@@ -6,13 +6,13 @@ export default async function Home() {
 
   return (
     <div>
-      <header className="fixed top-0 left-0 w-full text-white z-50" style={{ backgroundColor: '#BF1A1A' }}>
-        <div className="container mx-auto py-6 px-4 text-center">
+      <header className="fixed top-0 left-0 text-white z-50" style={{ backgroundColor: '#BF1A1A', width: '100%', minWidth: '1024px' }}>
+        <div className="py-6 px-4 text-center">
           <h1 className="text-4xl font-bold">Clear Sarkari Exam</h1>
         </div>
       </header>
       <main className="pt-24">
-        <div className="container mx-auto px-10 py-8">
+        <div className="w-full mx-auto px-10 py-8" style={{ minWidth: '1024px' }}>
           <div className="grid grid-cols-3 gap-10">
             {/* Latest Jobs Section */}
             <section className="border rounded-sm">
@@ -25,7 +25,7 @@ export default async function Home() {
                         <Link 
                           key={job._id} 
                           href={`/jobs/${job.slug}`} 
-                          className="block py-1 px-2 underline visited:text-blue-600 truncate"
+                          className="block py-1 px-2 underline text-blue-600 visited:text-blue-900 truncate"
                           prefetch={true}
                           title={job.title}
                         >

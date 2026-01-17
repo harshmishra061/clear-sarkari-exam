@@ -9,11 +9,20 @@
 @media (prefers-color-scheme: dark) {
 }
 
+html {
+  min-width: 1024px;
+  overflow-x: auto;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   min-width: 1024px;
+  overflow-x: auto;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
-html, body {
-  overflow-x: auto;
+/* Force desktop layout on all screen sizes */
+* {
+  -webkit-text-size-adjust: 100%;
 }

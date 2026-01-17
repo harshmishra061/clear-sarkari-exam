@@ -1,14 +1,14 @@
 export default function Loading() {
   return (
-    <div>
-      <header className="fixed top-0 left-0 w-full text-white z-50" style={{ backgroundColor: '#BF1A1A' }}>
-        <div className="container mx-auto py-6 px-4 text-center">
+    <div style={{ minWidth: '1024px' }}>
+      <header className="fixed top-0 left-0 text-white z-50" style={{ backgroundColor: '#BF1A1A', width: '100%', minWidth: '1024px' }}>
+        <div className="py-6 px-4 text-center">
           <h1 className="text-4xl font-bold">Clear Sarkari Exam</h1>
         </div>
       </header>
       
       <main className="pt-24">
-        <div className="container mx-auto px-10 py-8">
+        <div className="w-full mx-auto px-10 py-8" style={{ minWidth: '1024px' }}>
           <div className="grid grid-cols-3 gap-10">
             {/* Loading skeleton for each section */}
             {[1, 2, 3].map((i) => (
