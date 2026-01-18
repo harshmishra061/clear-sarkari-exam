@@ -1,4 +1,5 @@
 import { getLatestJobs } from "@/lib/data/jobs";
+import { getLatestResults } from "@/lib/data/results";
 import Link from "next/link";
 import { Metadata } from "next";
 
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const latestJobs = await getLatestJobs();
+  const latestResults = await getLatestResults();
 
   // Structured data for Organization and Website
   const organizationSchema = {
@@ -126,8 +128,22 @@ export default async function Home() {
               <h2 className="text-white text-xl font-bold py-4 px-6 text-center" style={{ backgroundColor: '#BF1A1A' }}>
                 RESULTS
               </h2>
-              <div className="p-6">
-                <p className="text-gray-500 text-center">Latest results will appear here...</p>
+              <div className="p-3">
+                {latestResults.length > 0 ? (
+                    latestResults.map((result) => (
+                        <Link 
+                          key={result._id} 
+                          href={`/results/${result.slug}`} 
+                          className="block py-1.5 px-2 underline text-blue-600 visited:text-blue-900 truncate-2-line leading-tight"
+                          prefetch={true}
+                          title={result.title}
+                        >
+                          {result.title}
+                        </Link>
+                    ))
+                ) : (
+                  <p className="text-gray-500 text-center">No results available at the moment.</p>
+                )}
               </div>
             </section>
 

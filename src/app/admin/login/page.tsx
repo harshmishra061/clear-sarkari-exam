@@ -12,10 +12,10 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Redirect to dashboard if already logged in
+  // Redirect to jobs page if already logged in
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/admin/dashboard");
+      router.push("/admin/jobs");
     }
   }, [status, router]);
 
@@ -51,7 +51,7 @@ export default function AdminLogin() {
       if (result?.error) {
         setError(result.error);
       } else {
-        router.push("/admin/dashboard");
+        router.push("/admin/jobs");
         router.refresh();
       }
     } catch {
