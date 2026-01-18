@@ -271,37 +271,20 @@ export default async function ResultPage({ params }: ResultPageProps) {
 
               <br />
 
-              {/* Important Links Section - Merged Result + Job Links */}
-              {((result.importantLinks && result.importantLinks.length > 0) || (job?.importantLinks && job.importantLinks.length > 0)) && (
+              {/* Important Links Section - Result Links Only */}
+              {result.importantLinks && result.importantLinks.length > 0 && (
                 <div className="border border-black p-4 rounded-sm">
                   <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Important Links</h3>
                   <table className="w-full border-collapse border border-black rounded-sm">
                     <tbody>
-                      {/* Result Links First (Primary) */}
-                      {result.importantLinks?.map((link, index) => (
-                        <tr key={`result-${index}`} className="border-b border-black last:border-b-0">
+                      {result.importantLinks.map((link, index) => (
+                        <tr key={index} className="border-b border-black last:border-b-0">
                           <td className="p-2 border-r border-black text-center text-2xl font-semibold" style={{ width: '50%', color: '#BF1A1A' }}>
                             {link.label}
                           </td>
                           <td className="p-2 text-center" style={{ width: '50%' }}>
                             <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-2xl font-semibold">
                               {link.buttonText || "View Result"}
-                            </a>
-                            {link.otherInfo && (
-                              <div className="text-xl text-pink-400 font-bold mt-1">({link.otherInfo})</div>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                      {/* Job Links Second (Additional) */}
-                      {job?.importantLinks?.map((link, index) => (
-                        <tr key={`job-${index}`} className="border-b border-black last:border-b-0">
-                          <td className="p-2 border-r border-black text-center text-2xl font-semibold" style={{ width: '50%', color: '#BF1A1A' }}>
-                            {link.label}
-                          </td>
-                          <td className="p-2 text-center" style={{ width: '50%' }}>
-                            <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-2xl font-semibold">
-                              {link.buttonText || "Click Here"}
                             </a>
                             {link.otherInfo && (
                               <div className="text-xl text-pink-400 font-bold mt-1">({link.otherInfo})</div>
