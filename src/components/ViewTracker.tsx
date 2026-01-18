@@ -4,14 +4,19 @@ import { useEffect } from "react";
 
 interface ViewTrackerProps {
   slug: string;
+  isResult?: boolean;
 }
 
-export default function ViewTracker({ slug }: ViewTrackerProps) {
+export default function ViewTracker({ slug, isResult = false }: ViewTrackerProps) {
   useEffect(() => {
     // Increment view count when component mounts
     const incrementView = async () => {
       try {
-        await fetch(`/api/jobs/${slug}/increment-view`, {
+        const endpoint = isResult 
+          ? `/api/results/${slug}/increment-view`
+          : `/api/jobs/${slug}/increment-view`;
+          
+        await fetch(endpoint, {
           method: "POST",
         });
       } catch (error) {
@@ -20,7 +25,7 @@ export default function ViewTracker({ slug }: ViewTrackerProps) {
     };
 
     incrementView();
-  }, [slug]);
+  }, [slug, isResult]);
 
   // This component doesn't render anything
   return null;
