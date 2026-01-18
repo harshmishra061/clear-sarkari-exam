@@ -25,26 +25,32 @@ export async function generateMetadata({ params }: ResultPageProps): Promise<Met
     };
   }
 
-  const title = result.seo?.title || `${result.title} - ${result.jobId.organization}`;
+  const title = result.seo?.title || (result.jobId ? `${result.title} - ${result.jobId.organization}` : result.title);
   const description = result.seo?.description || 
-    `${result.title} for ${result.jobId.title}. Check result details, important dates, and download links.`;
+    (result.jobId 
+      ? `${result.title} for ${result.jobId.title}. Check result details, important dates, and download links.`
+      : `${result.title}. Check result details, important dates, and download links.`);
   
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://clearsarkariexam.info';
   const url = `${baseUrl}/results/${result.slug}`;
 
+  const keywords = [
+    result.title,
+    'result',
+    'sarkari result',
+    'government result',
+    'merit list',
+    'selection list',
+  ];
+
+  if (result.jobId) {
+    keywords.push(result.jobId.organization, result.jobId.title);
+  }
+
   return {
     title,
     description,
-    keywords: [
-      result.title,
-      result.jobId.organization,
-      'result',
-      'sarkari result',
-      'government result',
-      result.jobId.title,
-      'merit list',
-      'selection list',
-    ],
+    keywords,
     openGraph: {
       title,
       description,
@@ -100,12 +106,14 @@ export default async function ResultPage({ params }: ResultPageProps) {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": result.title,
-    "description": `Result announcement for ${job.title}`,
+    "description": job ? `Result announcement for ${job.title}` : result.title,
     "datePublished": result.publishDate.toISOString(),
-    "author": {
-      "@type": "Organization",
-      "name": job.organization
-    },
+    ...(job && {
+      "author": {
+        "@type": "Organization",
+        "name": job.organization
+      }
+    }),
     "publisher": {
       "@type": "Organization",
       "name": "Clear Sarkari Exam",
@@ -140,13 +148,17 @@ export default async function ResultPage({ params }: ResultPageProps) {
         <main className="pt-24 pb-8 flex justify-center">
           <div style={{ width: '75%', minWidth: '720px' }}>
             {/* Result Title */}
-            <h1 className="text-3xl font-bold mt-8 text-center text-black">{result.title}</h1>
-            <div className="m-4">
-              <h2 className="text-2xl font-semibold text-green-800 text-center">{job.organization}</h2>
-            </div>
-            <div className="my-4">
-              <p className="text-justify" style={{color: "#19183B"}}>{job.description}</p>
-            </div>
+            <h1 className="text-3xl font-bold mt-8 mb-4 text-center text-black">{result.title}</h1>
+            {job && (
+              <>
+                <div className="mb-4">
+                  <h2 className="text-2xl font-semibold text-green-800 text-center">{job.organization}</h2>
+                </div>
+                <div className="my-4">
+                  <p className="text-justify" style={{color: "#19183B"}}>{job.description}</p>
+                </div>
+              </>
+            )}
 
             {/* Main Content Box */}
             <div className="border-2 border-black bg-white p-4 rounded-sm">
@@ -154,11 +166,11 @@ export default async function ResultPage({ params }: ResultPageProps) {
               {/* Two Column Layout - Merged Dates */}
               <div className="grid grid-cols-2 gap-6">
                 {/* Important Dates Column - Merged Job + Result Dates */}
-                {((job.importantDates && job.importantDates.length > 0) || (result.importantDates && result.importantDates.length > 0)) && (
+                {((job?.importantDates && job.importantDates.length > 0) || (result.importantDates && result.importantDates.length > 0)) && (
                   <div className="border border-black p-4 rounded-sm">
                     <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Important Dates</h3>
                     <ul className="list-disc list-inside">
-                      {job.importantDates?.map((date, index) => (
+                      {job?.importantDates?.map((date, index) => (
                         <li key={`job-${index}`}><span className="font-semibold">{date.label}</span> : {date.date}</li>
                       ))}
                       {result.importantDates?.map((date, index) => (
@@ -169,7 +181,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
                 )}
 
                 {/* Application Fee Column */}
-                {job.applicationFee && job.applicationFee.length > 0 && (
+                {job?.applicationFee && job.applicationFee.length > 0 && (
                   <div className="border border-black p-4 rounded-sm">
                     <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Application Fee</h3>
                     <ul className="list-disc list-inside">
@@ -184,7 +196,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
               <br />
 
               {/* Age Limit from Job */}
-              {job.ageRange && job.ageRange.length > 0 && (
+              {job?.ageRange && job.ageRange.length > 0 && (
                 <>
                   <div className="border border-black p-4 rounded-sm">
                     <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Age Limit</h3>
@@ -199,7 +211,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
               )}
               
               {/* Vacancy Info from Job */}
-              {job.vacancy && (
+              {job?.vacancy && (
                 <>
                   <div className="border border-black p-4 rounded-sm">
                     <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Total Vacancy : {job.vacancy}</h3>
@@ -209,7 +221,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
               )}
 
               {/* Dynamic Tables from Job */}
-              {job.table && job.table.length > 0 && job.table.map((tableItem, tableIndex, tableArray) => (
+              {job?.table && job.table.length > 0 && job.table.map((tableItem, tableIndex, tableArray) => (
                 <div key={tableIndex}>
                   <div className="border border-black p-4 rounded-sm">
                     {tableItem.title && (
@@ -260,7 +272,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
               <br />
 
               {/* Important Links Section - Merged Result + Job Links */}
-              {((result.importantLinks && result.importantLinks.length > 0) || (job.importantLinks && job.importantLinks.length > 0)) && (
+              {((result.importantLinks && result.importantLinks.length > 0) || (job?.importantLinks && job.importantLinks.length > 0)) && (
                 <div className="border border-black p-4 rounded-sm">
                   <h3 className="text-xl font-bold text-green-800 mb-4 text-center">Important Links</h3>
                   <table className="w-full border-collapse border border-black rounded-sm">
@@ -282,7 +294,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
                         </tr>
                       ))}
                       {/* Job Links Second (Additional) */}
-                      {job.importantLinks?.map((link, index) => (
+                      {job?.importantLinks?.map((link, index) => (
                         <tr key={`job-${index}`} className="border-b border-black last:border-b-0">
                           <td className="p-2 border-r border-black text-center text-2xl font-semibold" style={{ width: '50%', color: '#BF1A1A' }}>
                             {link.label}

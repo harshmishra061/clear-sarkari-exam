@@ -6,7 +6,7 @@ export interface ResultType {
   title: string;
   slug: string;
   publishDate: Date;
-  jobId: {
+  jobId?: {
     _id: string;
     title: string;
     organization: string;
@@ -34,7 +34,7 @@ export interface ResultDetailType {
     buttonText?: string;
     otherInfo?: string;
   }>;
-  jobId: {
+  jobId?: {
     _id: string;
     title: string;
     slug: string;
@@ -104,11 +104,11 @@ export async function getLatestResultsWithJob(): Promise<ResultType[]> {
       ...result,
       _id: result._id.toString(),
       publishDate: result.publishDate,
-      jobId: {
+      jobId: result.jobId ? {
         _id: result.jobId._id.toString(),
         title: result.jobId.title,
         organization: result.jobId.organization,
-      },
+      } : undefined,
     }));
   } catch (error) {
     console.error('Error fetching results:', error);
@@ -129,11 +129,11 @@ export async function getResultBySlug(slug: string): Promise<ResultDetailType | 
       ...result,
       _id: result._id.toString(),
       publishDate: result.publishDate,
-      jobId: {
+      jobId: result.jobId ? {
         ...result.jobId,
         _id: result.jobId._id.toString(),
         postDate: result.jobId.postDate,
-      },
+      } : undefined,
     };
   } catch (error) {
     console.error('Error fetching result:', error);

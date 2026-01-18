@@ -162,11 +162,17 @@ export default function CreateResultPage() {
     setLoading(true);
 
     try {
-      const payload = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const payload: Record<string, any> = {
         ...formData,
         importantDates: importantDates.filter((d) => d.label && d.date),
         importantLinks: importantLinks.filter((l) => l.label && l.url),
       };
+
+      // Remove jobId if it's empty
+      if (!payload.jobId || payload.jobId === "") {
+        delete payload.jobId;
+      }
 
       const response = await fetch("/api/admin/results", {
         method: "POST",
@@ -288,15 +294,14 @@ export default function CreateResultPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Related Job *
+                Related Job (Optional)
               </label>
               <select
-                required
                 value={formData.jobId}
                 onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition-all"
               >
-                <option value="">Select a job</option>
+                <option value="">Select a job (optional)</option>
                 {jobs.map((job) => (
                   <option key={job._id} value={job._id}>
                     {job.title} - {job.organization}

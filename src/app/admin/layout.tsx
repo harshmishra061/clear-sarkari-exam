@@ -14,9 +14,7 @@ export default function AdminLayout({
 
   const navigation = [
     { name: "Jobs", href: "/admin/jobs" },
-    { name: "Create Job", href: "/admin/jobs/new" },
     { name: "Results", href: "/admin/results" },
-    { name: "Create Result", href: "/admin/results/new" },
     { name: "Change Password", href: "/admin/change-password" },
   ];
 

@@ -5,7 +5,7 @@ const ResultSchema = new Schema(
     jobId: {
       type: Schema.Types.ObjectId,
       ref: "LatestJob",
-      required: true,
+      required: false,
       index: true,
     },
 
