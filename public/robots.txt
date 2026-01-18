@@ -7,4 +7,4 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://clear-sarkari-exam.vercel.app/sitemap.xml
+Sitemap: https://clearsarkariexam.info/sitemap.xml

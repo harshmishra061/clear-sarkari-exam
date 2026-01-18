@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://clear-sarkari-exam.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://clearsarkariexam.info'),
   title: {
     default: "Clear Sarkari Exam - Latest Government Job Notifications 2026",
     template: "%s | Clear Sarkari Exam"
@@ -98,9 +98,21 @@ export default function RootLayout({
   return (
     <html lang="en-IN">
       <head>
-        <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://clear-sarkari-exam.vercel.app'} />
-        <meta name="theme-color" content="#BF1A1A" />
+        {/* Additional favicon sizes for compatibility */}
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+        
+        {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
+        
+        {/* Theme color for browser UI */}
+        <meta name="theme-color" content="#BF1A1A" />
+        <meta name="msapplication-TileColor" content="#BF1A1A" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://clearsarkariexam.info'} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

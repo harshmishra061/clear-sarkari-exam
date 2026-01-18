@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://clear-sarkari-exam.vercel.app',
+  siteUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://clearsarkariexam.info',
   generateRobotsTxt: false, // We have a custom robots.txt
   generateIndexSitemap: true,
   exclude: ['/admin/*', '/api/*', '/server-sitemap.xml'],

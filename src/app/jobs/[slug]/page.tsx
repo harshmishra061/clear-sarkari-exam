@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
   const description = job.seo?.description || 
     `${job.title} notification by ${job.organization}. ${job.description.substring(0, 150)}...`;
   
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://clear-sarkari-exam.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://clearsarkariexam.info';
   const url = `${baseUrl}/jobs/${job.slug}`;
 
   return {

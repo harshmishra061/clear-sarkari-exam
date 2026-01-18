@@ -30,8 +30,8 @@ export default async function Home() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Clear Sarkari Exam",
-    "url": process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app",
-    "logo": `${process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app"}/opengraph-image`,
+    "url": process.env.NEXT_PUBLIC_BASE_URL || "https://clearsarkariexam.info",
+    "logo": `${process.env.NEXT_PUBLIC_BASE_URL || "https://clearsarkariexam.info"}/opengraph-image`,
     "description": "Latest Government Job Notifications, Results and Admit Cards",
     "sameAs": [
       // Add your social media links here when available
@@ -45,13 +45,13 @@ export default async function Home() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Clear Sarkari Exam",
-    "url": process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app",
+    "url": process.env.NEXT_PUBLIC_BASE_URL || "https://clearsarkariexam.info",
     "description": "Latest Government Job Notifications, Results and Admit Cards",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": `${process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app"}/search?q={search_term_string}`
+        "urlTemplate": `${process.env.NEXT_PUBLIC_BASE_URL || "https://clearsarkariexam.info"}/search?q={search_term_string}`
       },
       "query-input": "required name=search_term_string"
     }
@@ -65,7 +65,7 @@ export default async function Home() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": process.env.NEXT_PUBLIC_BASE_URL || "https://clear-sarkari-exam.vercel.app"
+        "item": process.env.NEXT_PUBLIC_BASE_URL || "https://clearsarkariexam.info"
       }
     ]
   };

@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/mongoose';
 import LatestJob from '@/models/LatestJob';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://clear-sarkari-exam.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://clearsarkariexam.info';
 
   try {
     await connectDB();

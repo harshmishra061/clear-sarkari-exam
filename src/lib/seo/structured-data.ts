@@ -15,7 +15,7 @@ interface JobPostingData {
 /**
  * Generate JobPosting schema for search engines
  */
-export function generateJobPostingSchema(job: JobPostingData, baseUrl: string = 'https://clear-sarkari-exam.vercel.app') {
+export function generateJobPostingSchema(job: JobPostingData, baseUrl: string = 'https://clearsarkariexam.info') {
   return {
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -53,7 +53,7 @@ export function generateJobPostingSchema(job: JobPostingData, baseUrl: string = 
 /**
  * Generate Organization schema
  */
-export function generateOrganizationSchema(baseUrl: string = 'https://clear-sarkari-exam.vercel.app') {
+export function generateOrganizationSchema(baseUrl: string = 'https://clearsarkariexam.info') {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -67,7 +67,7 @@ export function generateOrganizationSchema(baseUrl: string = 'https://clear-sark
 /**
  * Generate WebSite schema with search action
  */
-export function generateWebsiteSchema(baseUrl: string = 'https://clear-sarkari-exam.vercel.app') {
+export function generateWebsiteSchema(baseUrl: string = 'https://clearsarkariexam.info') {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",

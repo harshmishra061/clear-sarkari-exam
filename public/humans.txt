@@ -1,6 +1,6 @@
 /* TEAM */
 Developer: Clear Sarkari Exam Team
-Site: https://clear-sarkari-exam.vercel.app
+Site: https://clearsarkariexam.info
 Location: India
 
 /* SITE */
