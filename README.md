@@ -124,6 +124,15 @@ clear-sarkari-exam/
 - Smooth pagination with page numbers and Previous/Next controls
 - Real-time loading states and error handling
 
+## User Pages
+
+### Latest Jobs (`/latest-jobs`)
+- Browse all government job notifications in a paginated view
+- 20 jobs per page with easy navigation
+- Shows job details including organization, vacancy count, and important dates
+- Smooth pagination with page numbers and Previous/Next controls
+- Real-time loading states and error handling
+
 ## Admin Panel
 
 Access the admin panel at `/admin/login` with your admin credentials.
