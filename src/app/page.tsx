@@ -122,7 +122,7 @@ export default async function Home() {
                 )}
                 <div className="mt-3 text-right">
                   <Link 
-                    href="/latest-jobs"
+                    href="/latest-jobs/1"
                     className="text-blue-600 hover:text-blue-800 underline text-md font-bold"
                   >
                     See More
