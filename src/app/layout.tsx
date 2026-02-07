@@ -73,11 +73,11 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code', // Add your verification code
-    // yandex: 'your-yandex-verification-code',
-    // bing: 'your-bing-verification-code',
-  },
+  // verification: {
+  //   google: 'your-google-verification-code', // Add your verification code after Google Search Console setup
+  //   // yandex: 'your-yandex-verification-code',
+  //   // bing: 'your-bing-verification-code',
+  // },
   alternates: {
     canonical: "/",
   },
