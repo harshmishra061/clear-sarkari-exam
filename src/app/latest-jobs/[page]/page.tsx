@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Metadata } from "next";
+import { connectDB } from "@/lib/mongoose";
+import LatestJob from "@/models/LatestJob";
 
 interface Job {
   _id: string;
@@ -28,12 +30,6 @@ interface PaginationInfo {
   prevPage: number | null;
 }
 
-interface ApiResponse {
-  success: boolean;
-  data: Job[];
-  pagination: PaginationInfo;
-}
-
 interface PageProps {
   params: Promise<{
     page: string;
@@ -58,20 +54,71 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function fetchJobs(page: number, limit: number = 50) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(
-      `${baseUrl}/api/latest-jobs?page=${page}&limit=${limit}&status=active`,
-      {
-        cache: 'no-store', // Always fetch fresh data
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error("Failed to fetch jobs");
+    await connectDB();
+
+    // Validate pagination parameters
+    if (page < 1 || limit < 1) {
+      return null;
     }
 
-    const data: ApiResponse = await response.json();
-    return data;
+    // Limit maximum items per page to prevent overload
+    const maxLimit = 100;
+    const actualLimit = Math.min(limit, maxLimit);
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * actualLimit;
+
+    // Build query filter
+    const filter = { status: "active" };
+
+    // Get total count for pagination metadata
+    const totalJobs = await LatestJob.countDocuments(filter);
+
+    // Fetch paginated jobs
+    const jobs = await LatestJob.find(filter)
+      .select({
+        title: 1,
+        slug: 1,
+        organization: 1,
+        description: 1,
+        vacancy: 1,
+        postDate: 1,
+        status: 1,
+        totalViews: 1,
+        importantDates: 1,
+      })
+      .sort({ postDate: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(actualLimit)
+      .lean();
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalJobs / actualLimit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+
+    // Convert MongoDB _id to string
+    const serializedJobs = jobs.map(job => ({
+      ...job,
+      _id: job._id.toString(),
+      postDate: job.postDate ? new Date(job.postDate).toISOString() : "",
+    }));
+
+    // Return paginated response
+    return {
+      success: true,
+      data: serializedJobs,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalJobs,
+        limit: actualLimit,
+        hasNextPage,
+        hasPrevPage,
+        nextPage: hasNextPage ? page + 1 : null,
+        prevPage: hasPrevPage ? page - 1 : null,
+      },
+    };
   } catch (error) {
     console.error("Error fetching jobs:", error);
     return null;
@@ -137,7 +184,7 @@ export default async function LatestJobsPageDynamic({ params }: PageProps) {
     );
   }
 
-  const { data: jobs, pagination } = data;
+  const { data: jobs, pagination }: { data: Job[], pagination: PaginationInfo } = data;
 
   return (
     <div>
