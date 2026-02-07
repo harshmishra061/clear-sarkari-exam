@@ -41,10 +41,8 @@ export async function POST(req: Request) {
     // Check if slug already exists
     const existingJob = await LatestJob.findOne({ slug: body.slug });
     if (existingJob) {
-      return NextResponse.json(
-        { error: "A job with this slug already exists" },
-        { status: 400 }
-      );
+      // Delete the existing job completely before creating the new one
+      await LatestJob.deleteOne({ slug: body.slug });
     }
 
     const job = await LatestJob.create(body);    
