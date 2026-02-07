@@ -99,7 +99,7 @@ clear-sarkari-exam/
 ## SEO Features
 
 ✅ **Comprehensive SEO Implementation:**
-- Dynamic XML sitemap (`/sitemap.xml`)
+- Dynamic XML sitemap (`/sitemap.xml`) - includes jobs, results, and all pages
 - Robots.txt configuration
 - Meta tags (title, description, keywords)
 - Open Graph tags for social sharing
@@ -110,7 +110,10 @@ clear-sarkari-exam/
 - Dynamic OG image generation
 - 404 page optimization
 
-See [SEO_CHECKLIST.md](./SEO_CHECKLIST.md) for detailed SEO setup instructions.
+📚 **SEO Documentation:**
+- [SEO_SETUP_GUIDE.md](./SEO_SETUP_GUIDE.md) - Complete setup guide with troubleshooting
+- [SEO_QUICK_CHECKLIST.md](./SEO_QUICK_CHECKLIST.md) - Quick action checklist
+- Run `./scripts/verify-seo.sh` to verify your SEO setup after deployment
 
 ## User Pages
 
@@ -140,6 +143,9 @@ npm run start        # Start production server
 npm run lint         # Run ESLint
 npm run create-admin # Create new admin user
 npm run reset-password # Reset admin password
+
+# SEO Verification
+./scripts/verify-seo.sh # Verify SEO setup after deployment
 ```
 
 ## API Routes
