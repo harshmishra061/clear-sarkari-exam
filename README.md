@@ -5,6 +5,7 @@ A comprehensive platform for government job notifications, results, and admit ca
 ## Features
 
 - 📋 **Latest Job Notifications** - Real-time updates on government job openings
+- 📑 **Paginated Job Listing** - Browse all jobs with easy pagination controls
 - 📊 **Results & Admit Cards** - Quick access to exam results and admit cards
 - 🔍 **SEO Optimized** - Fully optimized for search engines
 - ⚡ **Fast Performance** - ISR (Incremental Static Regeneration) for optimal speed
@@ -76,6 +77,7 @@ clear-sarkari-exam/
 │   │   ├── admin/             # Admin panel routes
 │   │   ├── api/               # API routes
 │   │   ├── jobs/              # Job detail pages
+│   │   ├── latest-jobs/       # Paginated jobs listing page
 │   │   ├── layout.tsx         # Root layout with SEO metadata
 │   │   ├── page.tsx           # Homepage
 │   │   ├── sitemap.ts         # Dynamic sitemap
@@ -110,6 +112,15 @@ clear-sarkari-exam/
 
 See [SEO_CHECKLIST.md](./SEO_CHECKLIST.md) for detailed SEO setup instructions.
 
+## User Pages
+
+### Latest Jobs (`/latest-jobs`)
+- Browse all government job notifications in a paginated view
+- 20 jobs per page with easy navigation
+- Shows job details including organization, vacancy count, and important dates
+- Smooth pagination with page numbers and Previous/Next controls
+- Real-time loading states and error handling
+
 ## Admin Panel
 
 Access the admin panel at `/admin/login` with your admin credentials.
@@ -133,11 +144,22 @@ npm run reset-password # Reset admin password
 
 ## API Routes
 
+### Public Routes
+- `GET /api/latest-jobs` - Get paginated list of jobs
+  - Query Parameters:
+    - `page` (optional, default: 1) - Page number
+    - `limit` (optional, default: 10, max: 100) - Items per page
+    - `status` (optional, default: "active") - Filter by status ("active", "expired", or "all")
+  - Returns: Paginated job list with metadata
+
+### Admin Routes
 - `POST /api/admin/jobs` - Create new job
 - `GET /api/admin/jobs` - Get all jobs
 - `PUT /api/admin/jobs/[id]` - Update job
 - `DELETE /api/admin/jobs/[id]` - Delete job
 - `POST /api/admin/change-password` - Change admin password
+
+### Utility Routes
 - `POST /api/revalidate` - Trigger ISR revalidation
 
 ## Database Models
