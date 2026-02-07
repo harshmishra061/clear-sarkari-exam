@@ -110,7 +110,7 @@ export default async function Home() {
                         <Link 
                           key={job._id} 
                           href={`/jobs/${job.slug}`} 
-                          className="block py-1.5 px-2 underline text-blue-600 visited:text-blue-900 truncate-2-line leading-tight"
+                          className="block py-1.5 px-2 underline text-blue-600 visited:text-blue-900 leading-tight"
                           prefetch={true}
                           title={job.title}
                         >
