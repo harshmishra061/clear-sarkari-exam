@@ -4,100 +4,100 @@ import LatestJob from '@/models/LatestJob';
 import Result from '@/models/Result';
 
 // Type for database records
-interface DbRecord {
+interface SitemapRecord {
   slug: string;
   updatedAt?: Date;
 }
 
-// Use ISR (Incremental Static Regeneration) instead of dynamic
-export const revalidate = 3600; // Revalidate every hour (1 hour cache)
+// Static generation with revalidation (ISR)
+export const revalidate = 86400; // Revalidate once per day (24 hours)
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://clearsarkariexam.info';
+  // Use environment variable, fallback to production URL
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.clearsarkariexam.info';
 
   try {
-    // Connect to database with timeout
-    await Promise.race([
-      connectDB(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('DB connection timeout')), 5000)
-      )
+    // Connect to database
+    await connectDB();
+
+    // Fetch data directly from database (no HTTP calls)
+    const [jobs, results] = await Promise.all([
+      LatestJob.find({ status: 'active' })
+        .select('slug updatedAt')
+        .sort({ createdAt: -1 })
+        .limit(10000)
+        .lean()
+        .exec(),
+      
+      Result.find({ status: 'active' })
+        .select('slug updatedAt')
+        .sort({ createdAt: -1 })
+        .limit(10000)
+        .lean()
+        .exec(),
     ]);
 
-    // Fetch jobs and results in parallel with timeout
-    const [jobs, results] = await Promise.race([
-      Promise.all([
-        LatestJob.find({ status: 'active' })
-          .select('slug updatedAt')
-          .limit(5000)
-          .lean()
-          .exec()
-          .catch(() => []),
-        
-        Result.find({ status: 'active' })
-          .select('slug updatedAt')
-          .limit(5000)
-          .lean()
-          .exec()
-          .catch(() => []),
-      ]),
-      new Promise<[DbRecord[], DbRecord[]]>((_, reject) => 
-        setTimeout(() => reject(new Error('Query timeout')), 5000)
-      )
-    ]);
+    const currentDate = new Date();
 
-    const now = new Date();
-
-    // Static pages
-    const staticPages: MetadataRoute.Sitemap = [
+    // Homepage - highest priority
+    const homepage: MetadataRoute.Sitemap = [
       {
         url: baseUrl,
-        lastModified: now,
-        changeFrequency: 'hourly',
+        lastModified: currentDate,
+        changeFrequency: 'daily',
         priority: 1.0,
       },
+    ];
+
+    // Latest Jobs page
+    const latestJobsPage: MetadataRoute.Sitemap = [
       {
         url: `${baseUrl}/latest-jobs/1`,
-        lastModified: now,
-        changeFrequency: 'hourly',
+        lastModified: currentDate,
+        changeFrequency: 'daily',
         priority: 0.9,
       },
     ];
 
-    // Job pages
-    const jobPages: MetadataRoute.Sitemap = jobs.map((job: DbRecord) => ({
+    // Individual job pages
+    const jobPages: MetadataRoute.Sitemap = jobs.map((job: SitemapRecord) => ({
       url: `${baseUrl}/jobs/${job.slug}`,
-      lastModified: job.updatedAt || now,
-      changeFrequency: 'daily' as const,
+      lastModified: job.updatedAt ? new Date(job.updatedAt) : currentDate,
+      changeFrequency: 'weekly',
       priority: 0.8,
     }));
 
-    // Result pages
-    const resultPages: MetadataRoute.Sitemap = results.map((result: DbRecord) => ({
+    // Individual result pages
+    const resultPages: MetadataRoute.Sitemap = results.map((result: SitemapRecord) => ({
       url: `${baseUrl}/results/${result.slug}`,
-      lastModified: result.updatedAt || now,
-      changeFrequency: 'daily' as const,
+      lastModified: result.updatedAt ? new Date(result.updatedAt) : currentDate,
+      changeFrequency: 'weekly',
       priority: 0.7,
     }));
 
-    // Combine all pages
-    return [...staticPages, ...jobPages, ...resultPages];
+    // Combine all entries
+    return [
+      ...homepage,
+      ...latestJobsPage,
+      ...jobPages,
+      ...resultPages,
+    ];
+
   } catch (error) {
-    console.error('Error generating sitemap:', error);
+    console.error('Sitemap generation error:', error);
     
-    // Return minimal sitemap on error (ensures Google always gets a valid response)
-    const now = new Date();
+    // Fallback: return minimal valid sitemap
     return [
       {
         url: baseUrl,
-        lastModified: now,
-        changeFrequency: 'hourly',
+        lastModified: new Date(),
+        changeFrequency: 'daily',
         priority: 1.0,
       },
       {
         url: `${baseUrl}/latest-jobs/1`,
-        lastModified: now,
-        changeFrequency: 'hourly',
+        lastModified: new Date(),
+        changeFrequency: 'daily',
         priority: 0.9,
       },
     ];

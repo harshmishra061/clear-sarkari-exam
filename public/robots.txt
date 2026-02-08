@@ -7,4 +7,4 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://clearsarkariexam.info/sitemap.xml
+Sitemap: https://www.clearsarkariexam.info/sitemap.xml
